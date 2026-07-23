@@ -53,6 +53,26 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0x1C] = {"INC E", 1, 4};
     lut[0x2C] = {"INC L", 1, 4};
     lut[0x3C] = {"INC A", 1, 4};
+
+    lut[0x0B] = {"DEC BC", 1, 8};
+    lut[0x1B] = {"DEC DE", 1, 8};
+    lut[0x2B] = {"DEC HL", 1, 8};
+    lut[0x3B] = {"DEC SP", 1, 8};
+
+    lut[0x05] = {"DEC B", 1, 4};
+    lut[0x15] = {"DEC D", 1, 4};
+    lut[0x25] = {"DEC H", 1, 4};
+    lut[0x35] = {"DEC [HL]", 1, 12};
+
+    lut[0x0D] = {"DEC C", 1, 4};
+    lut[0x1D] = {"DEC E", 1, 4};
+    lut[0x2D] = {"DEC L", 1, 4};
+    lut[0x3D] = {"DEC A", 1, 4};
+
+    lut[0x09] = {"ADD HL, BC", 1, 8};
+    lut[0x19] = {"ADD HL, DE", 1, 8};
+    lut[0x29] = {"ADD HL, HL", 1, 8};
+    lut[0x39] = {"ADD HL, SP", 1, 8};
     
     /*
     Block 2
@@ -81,6 +101,18 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0xDA] = {"JP C, a16", 3, 12};
     lut[0xD3] = {"JP NC, a16", 3, 12};
     lut[0xE9] = {"JP HL", 1, 4};
+
+    lut[0xE0] = {"LDH [a8], A", 2, 12};
+    lut[0xE2] = {"LDH [C], A", 1, 8};
+    lut[0xF0] = {"LDH A, [a8]", 2, 12};
+    lut[0xF2] = {"LDH A, [C]", 1, 8};
+
+    lut[0xEA] = {"LD [a16], A", 3, 16};
+    lut[0xFA] = {"LD A, [a16]", 3, 16};
+
+    lut[0xE8] = {"ADD SP, e8", 2, 16};
+    lut[0xF8] = {"LD HL, SP+e8", 2, 12};
+    lut[0xF9] = {"LD SP, HL", 1, 8};
 
     lut[0xF3] = {"DI", 1, 4};
     lut[0xFB] = {"DI", 1, 4};
