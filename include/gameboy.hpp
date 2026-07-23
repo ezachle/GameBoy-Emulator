@@ -94,6 +94,3 @@ private:
     uint64_t      gb_file_size;
     std::string   file_name;
 };
-
-#define GET_SRC(opcode) (opcode & 0x7)
-#define GET_DST(opcode) ((opcode & 0x38) >> 3)
