@@ -357,16 +357,138 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                         break;
                 }
 
-                flags->c = carry(registers.hl.raw, *reg, registers.hl.raw + *reg);
-                flags->h = half_carry(registers.hl.raw, *reg, registers.hl.raw + *reg);
+                flags->h = ((registers.hl.raw & 0x0F) + (*reg & 0x0F)) > 0x0F;
+                flags->c = ((registers.hl.raw & 0xFF) + (*reg & 0xFF)) > 0xFF;
                 registers.hl.raw += *reg;
                 flags->n = 0;
+            }
+            break;
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+        case 0x60:
+        case 0x61:
+        case 0x62:
+        case 0x63:
+        case 0x64:
+        case 0x65:
+        case 0x66:
+        case 0x67:
+        case 0x68:
+        case 0x69:
+        case 0x6A:
+        case 0x6B:
+        case 0x6C:
+        case 0x6D:
+        case 0x6E:
+        case 0x6F:
+        case 0x70:
+        case 0x71:
+        case 0x72:
+        case 0x73:
+        case 0x74:
+        case 0x75:
+        case 0x77:
+        case 0x78:
+        case 0x79:
+        case 0x7A:
+        case 0x7B:
+        case 0x7C:
+        case 0x7D:
+        case 0x7E:
+        case 0x7F:
+            {
+                uint8_t *dst;
+                uint8_t *src;
+                switch(GET_DST(opcode)) {
+                    case 0:
+                        dst = &registers.bc.b;
+                        break;
+                    case 1:
+                        dst = &registers.bc.c;
+                        break;
+                    case 2:
+                        dst = &registers.de.d;
+                        break;
+                    case 3:
+                        dst = &registers.de.e;
+                        break;
+                    case 4:
+                        dst = &registers.hl.h;
+                        break;
+                    case 5:
+                        dst = &registers.hl.l;
+                        break;
+                    case 6:
+                        dst = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        dst = &registers.af.a;
+                        break;
+                };
+
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                *dst = *src;
             }
             break;
         case 0xCD:
             {
                 next_pc = GET_WORD(buffer, pc);
-
                 registers.pc += instr.length;
                 PUSH_SP(registers.pc, buffer, registers.sp);
             }

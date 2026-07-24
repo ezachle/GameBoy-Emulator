@@ -74,6 +74,79 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0x29] = {"ADD HL, HL", 1, 8};
     lut[0x39] = {"ADD HL, SP", 1, 8};
     
+    // Block 1
+    lut[0x40] = {"LD B, B", 1, 4};
+    lut[0x41] = {"LD B, C", 1, 4};
+    lut[0x42] = {"LD B, D", 1, 4};
+    lut[0x43] = {"LD B, E", 1, 4};
+    lut[0x44] = {"LD B, H", 1, 4};
+    lut[0x45] = {"LD B, L", 1, 4};
+    lut[0x46] = {"LD B, [HL]", 1, 8};
+    lut[0x47] = {"LD B, A", 1, 4};
+          
+    lut[0x48] = {"LD C, B", 1, 4};
+    lut[0x49] = {"LD C, C", 1, 4};
+    lut[0x4A] = {"LD C, D", 1, 4};
+    lut[0x4B] = {"LD C, E", 1, 4};
+    lut[0x4C] = {"LD C, H", 1, 4};
+    lut[0x4D] = {"LD C, L", 1, 4};
+    lut[0x4E] = {"LD C, [HL]", 1, 8};
+    lut[0x4F] = {"LD C, A", 1, 4};
+          
+    lut[0x50] = {"LD D, B", 1, 4};
+    lut[0x51] = {"LD D, C", 1, 4};
+    lut[0x52] = {"LD D, D", 1, 4};
+    lut[0x53] = {"LD D, E", 1, 4};
+    lut[0x54] = {"LD D, H", 1, 4};
+    lut[0x55] = {"LD D, L", 1, 4};
+    lut[0x56] = {"LD D, [HL]", 1, 8};
+    lut[0x57] = {"LD D, A", 1, 4};
+          
+    lut[0x58] = {"LD E, B", 1, 4};
+    lut[0x59] = {"LD E, C", 1, 4};
+    lut[0x5A] = {"LD E, D", 1, 4};
+    lut[0x5B] = {"LD E, E", 1, 4};
+    lut[0x5C] = {"LD E, H", 1, 4};
+    lut[0x5D] = {"LD E, L", 1, 4};
+    lut[0x5E] = {"LD E, [HL]", 1, 8};
+    lut[0x5F] = {"LD E, A", 1, 4};
+          
+    lut[0x60] = {"LD H, B", 1, 4};
+    lut[0x61] = {"LD H, C", 1, 4};
+    lut[0x62] = {"LD H, D", 1, 4};
+    lut[0x63] = {"LD H, E", 1, 4};
+    lut[0x64] = {"LD H, H", 1, 4};
+    lut[0x65] = {"LD H, L", 1, 4};
+    lut[0x66] = {"LD H, [HL]", 1, 8};
+    lut[0x67] = {"LD H, A", 1, 4};
+          
+    lut[0x68] = {"LD L, B", 1, 4};
+    lut[0x69] = {"LD L, C", 1, 4};
+    lut[0x6A] = {"LD L, D", 1, 4};
+    lut[0x6B] = {"LD L, E", 1, 4};
+    lut[0x6C] = {"LD L, H", 1, 4};
+    lut[0x6D] = {"LD L, L", 1, 4};
+    lut[0x6E] = {"LD L, [HL]", 1, 8};
+    lut[0x6F] = {"LD L, A", 1, 4};
+          
+    lut[0x70] = {"LD [HL], B", 1, 8};
+    lut[0x71] = {"LD [HL], C", 1, 8};
+    lut[0x72] = {"LD [HL], D", 1, 8};
+    lut[0x73] = {"LD [HL], E", 1, 8};
+    lut[0x74] = {"LD [HL], H", 1, 8};
+    lut[0x75] = {"LD [HL], L", 1, 8};
+    //lut[0x76] = {"HALT", 1, 4};
+    lut[0x77] = {"LD [HL], A", 1, 8};
+
+    lut[0x78] = {"LD A, B", 1, 4};
+    lut[0x79] = {"LD A, C", 1, 4};
+    lut[0x7A] = {"LD A, D", 1, 4};
+    lut[0x7B] = {"LD A, E", 1, 4};
+    lut[0x7C] = {"LD A, H", 1, 4};
+    lut[0x7D] = {"LD A, L", 1, 4};
+    lut[0x7E] = {"LD A, [HL]", 1, 8};
+    lut[0x7F] = {"LD A, A", 1, 4};
+
     /*
     Block 2
     add, adc, sub, sbc, and, xor, or, cp
