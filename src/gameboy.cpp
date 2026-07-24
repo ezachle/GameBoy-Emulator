@@ -363,6 +363,56 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 flags->n = 0;
             }
             break;
+        case 0x18:
+            {
+                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                next_pc = pc + instr.length + relative_pc;
+            }
+            break;
+        case 0x20:
+            {
+                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                if(!flags->z) {
+                    next_pc = pc + instr.length + relative_pc;
+                    instr.cycles = 12;
+                } else {
+                    instr.cycles = 8;
+                }
+            }
+            break;
+        case 0x28:
+            {
+                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                if(flags->z) {
+                    next_pc = pc + instr.length + relative_pc;
+                    instr.cycles = 12;
+                } else {
+                    instr.cycles = 8;
+                }
+            }
+            break;
+        case 0x30:
+            {
+                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                if(!flags->c) {
+                    next_pc = pc + instr.length + relative_pc;
+                    instr.cycles = 12;
+                } else {
+                    instr.cycles = 8;
+                }
+            }
+            break;
+        case 0x38:
+            {
+                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                if(flags->c) {
+                    next_pc = pc + instr.length + relative_pc;
+                    instr.cycles = 12;
+                } else {
+                    instr.cycles = 8;
+                }
+            }
+            break;
         case 0x40:
         case 0x41:
         case 0x42:
@@ -484,6 +534,368 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 };
 
                 *dst = *src;
+            }
+            break;
+        case 0x80:
+        case 0x81:
+        case 0x82:
+        case 0x83:
+        case 0x84:
+        case 0x85:
+        case 0x86:
+        case 0x87:
+            {
+                uint8_t *src;
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                flags->h = ((registers.af.a & 0x0F) + (*src & 0x0F)) > 0x0F;
+                flags->c = ((registers.af.a & 0xFF) + (*src & 0xFF)) > 0xFF;
+                flags->z = ((registers.af.a + *src) == 0) ? 1 : 0;
+                flags->n = 0;
+
+                registers.af.a += *src;
+            }
+            break;
+        case 0x88:
+        case 0x89:
+        case 0x8A:
+        case 0x8B:
+        case 0x8C:
+        case 0x8D:
+        case 0x8E:
+        case 0x8F:
+            {
+                uint8_t *src;
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                flags->h = ((registers.af.a & 0x0F) + (*src & 0x0F) + (flags->c)) > 0x0F;
+                flags->c = ((registers.af.a & 0xFF) + (*src & 0xFF) + (flags->c)) > 0xFF;
+                flags->z = ((registers.af.a + *src) == 0) ? 1 : 0;
+                flags->n = 0;
+
+                registers.af.a += *src + flags->c;
+            }
+            break;
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+            {
+                uint8_t *src;
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                flags->h = ((registers.af.a & 0x0F) < (*src & 0x0F));
+                flags->c = registers.af.a < *src;
+                flags->z = ((registers.af.a - *src) == 0) ? 1 : 0;
+                flags->n = 1;
+
+                registers.af.a -= *src;
+            }
+            break;
+        case 0x98:
+        case 0x99:
+        case 0x9A:
+        case 0x9B:
+        case 0x9C:
+        case 0x9D:
+        case 0x9E:
+        case 0x9F:
+            {
+                uint8_t *src;
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                uint16_t result = registers.af.a - *src + flags->c;
+                flags->h = ((registers.af.a & 0x0F) - (*src & 0x0F) - flags->c) < 0;
+                flags->c = result < 0;
+                flags->z = ((result & 0xFF) == 0) ? 1 : 0;
+                flags->n = 1;
+
+                registers.af.a = result;
+            }
+            break;
+        case 0xA0:
+        case 0xA1:
+        case 0xA2:
+        case 0xA3:
+        case 0xA4:
+        case 0xA5:
+        case 0xA6:
+        case 0xA7:
+            {
+                uint8_t *src;
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                uint8_t result = registers.af.a & (*src);
+                flags->h = 1;
+                flags->c = 0;
+                flags->z = (result == 0) ? 1 : 0;
+                flags->n = 0;
+
+                registers.af.a = result;
+            }
+            break;
+        case 0xA8:
+        case 0xA9:
+        case 0xAA:
+        case 0xAB:
+        case 0xAC:
+        case 0xAD:
+        case 0xAE:
+        case 0xAF:
+            {
+                uint8_t *src;
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                uint8_t result = registers.af.a ^ (*src);
+                flags->h = 0;
+                flags->c = 0;
+                flags->z = (result == 0) ? 1 : 0;
+                flags->n = 0;
+
+                registers.af.a = result;
+            }
+            break;
+        case 0xB0:
+        case 0xB1:
+        case 0xB2:
+        case 0xB3:
+        case 0xB4:
+        case 0xB5:
+        case 0xB6:
+        case 0xB7:
+            {
+                uint8_t *src;
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                uint8_t result = registers.af.a | (*src);
+                flags->h = 0;
+                flags->c = 0;
+                flags->z = (result == 0) ? 1 : 0;
+                flags->n = 0;
+
+                registers.af.a = result;
+            }
+            break;
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            {
+                uint8_t *src;
+                switch(GET_SRC(opcode)) {
+                    case 0:
+                        src = &registers.bc.b;
+                        break;
+                    case 1:
+                        src = &registers.bc.c;
+                        break;
+                    case 2:
+                        src = &registers.de.d;
+                        break;
+                    case 3:
+                        src = &registers.de.e;
+                        break;
+                    case 4:
+                        src = &registers.hl.h;
+                        break;
+                    case 5:
+                        src = &registers.hl.l;
+                        break;
+                    case 6:
+                        src = &buffer[registers.hl.raw];
+                        break;
+                    case 7:
+                        src = &registers.af.a;
+                        break;
+                };
+
+                flags->h = ((registers.af.a & 0x0F) < (*src & 0x0F));
+                flags->c = registers.af.a < *src;
+                flags->z = ((registers.af.a - *src) == 0) ? 1 : 0;
+                flags->n = 1;
             }
             break;
         case 0xCD:
