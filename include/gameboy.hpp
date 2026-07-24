@@ -94,3 +94,13 @@ private:
     uint64_t      gb_file_size;
     std::string   file_name;
 };
+
+#define POP_SP(data, buffer, sp)                                \
+    data = (buffer[sp+1] << 8) | buffer[sp];                    \
+    sp += 2;                                                    \
+
+#define PUSH_SP(data, buffer, sp)                                \
+    sp -= 2;                                                     \
+    buffer[sp] = data & 0xFF;                                    \
+    buffer[sp+1] = (data >> 8) & 0xFF;                           \
+

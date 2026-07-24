@@ -230,34 +230,6 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 reg++;
             }
             break;
-        case 0x0B:
-        case 0x1B:
-        case 0x2B:
-        case 0x3B:
-            {
-                uint16_t *reg;
-                switch(GET_DST(opcode)) {
-                    case 0:
-                    case 1:
-                        reg = &registers.bc.raw;
-                        break;
-                    case 2:
-                    case 3:
-                        reg = &registers.de.raw;
-                        break;
-                    case 4:
-                    case 5:
-                        reg = &registers.hl.raw;
-                        break;
-                    case 6:
-                    case 7:
-                        reg = &registers.sp;
-                        break;
-                };
-
-                reg--;
-            }
-            break;
         case 0x04:
         case 0x14:
         case 0x24:
@@ -299,6 +271,34 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 (*reg)++;
                 flags->z = (reg == 0) ? 1 : 0;
                 flags->n = 0;
+            }
+            break;
+        case 0x0B:
+        case 0x1B:
+        case 0x2B:
+        case 0x3B:
+            {
+                uint16_t *reg;
+                switch(GET_DST(opcode)) {
+                    case 0:
+                    case 1:
+                        reg = &registers.bc.raw;
+                        break;
+                    case 2:
+                    case 3:
+                        reg = &registers.de.raw;
+                        break;
+                    case 4:
+                    case 5:
+                        reg = &registers.hl.raw;
+                        break;
+                    case 6:
+                    case 7:
+                        reg = &registers.sp;
+                        break;
+                };
+
+                reg--;
             }
             break;
         case 0x05:
@@ -371,7 +371,122 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 flags->n = 0;
             }
             break;
-        case 0xC3:
+        case 0xCD:
+            {
+                next_pc = GET_WORD(buffer, pc);
+
+                registers.pc += instr.length;
+                PUSH_SP(registers.pc, buffer, registers.sp);
+            }
+            break;
+        case 0xC4:
+            {
+                if(!flags->z) {
+                    next_pc = GET_WORD(buffer, pc);
+
+                    registers.pc += instr.length;
+                    PUSH_SP(registers.pc, buffer, registers.sp);
+
+                    instr.cycles = 24;
+                } else {
+                    instr.cycles = 12;
+                }
+            }
+            break;
+        case 0xCC:
+            {
+                if(flags->z) {
+                    next_pc = GET_WORD(buffer, pc);
+
+                    registers.pc += instr.length;
+                    PUSH_SP(registers.pc, buffer, registers.sp);
+
+                    instr.cycles = 24;
+                } else {
+                    instr.cycles = 12;
+                }
+            }
+            break;
+        case 0xD4:
+            {
+                if(!flags->c) {
+                    next_pc = GET_WORD(buffer, pc);
+
+                    registers.pc += instr.length;
+                    PUSH_SP(registers.pc, buffer, registers.sp);
+
+                    instr.cycles = 24;
+                } else {
+                    instr.cycles = 12;
+                }
+            }
+            break;
+        case 0xDC:
+            {
+                if(flags->c) {
+                    next_pc = GET_WORD(buffer, pc);
+
+                    registers.pc += instr.length;
+                    PUSH_SP(registers.pc, buffer, registers.sp);
+
+                    instr.cycles = 24;
+                } else {
+                    instr.cycles = 12;
+                }
+            }
+            break;
+        case 0xC9:
+            {
+               POP_SP(next_pc, buffer, registers.sp); 
+            }
+            break;
+        case 0xD9:
+            {
+               POP_SP(next_pc, buffer, registers.sp); 
+               enable_interrupt = true;
+            }
+            break;
+        case 0xC0:
+            {
+                if(!flags->z) {
+                    POP_SP(next_pc, buffer, registers.sp); 
+                    instr.cycles = 20;
+                } else {
+                    instr.cycles = 8;
+                }
+            }
+            break;
+        case 0xC8:
+            {
+                if(flags->z) {
+                    POP_SP(next_pc, buffer, registers.sp); 
+                    instr.cycles = 20;
+                } else {
+                    instr.cycles = 8;
+                }
+            }
+            break;
+        case 0xD0:
+            {
+                if(!flags->c) {
+                    POP_SP(next_pc, buffer, registers.sp); 
+                    instr.cycles = 20;
+                } else {
+                    instr.cycles = 8;
+                }
+            }
+            break;
+        case 0xD8:
+            {
+                if(flags->c) {
+                    POP_SP(next_pc, buffer, registers.sp); 
+                    instr.cycles = 20;
+                } else {
+                    instr.cycles = 8;
+                }
+            }
+            break;
+        case 0xC2:
             {
                 if(!flags->z) {
                     instr.cycles = 16;
@@ -381,7 +496,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 }
             }
             break;
-        case 0xC4:
+        case 0xC3:
             {
                 next_pc = (buffer[pc + 2] << 8) | buffer[pc + 1];
             }
@@ -406,7 +521,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 }
             }
             break;
-        case 0xD3:    
+        case 0xD2:
             {
                 if(!flags->c) {
                     instr.cycles = 16;
@@ -419,6 +534,54 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xE9:
             {
                 next_pc = (buffer[pc + 2] << 8) | buffer[pc + 1];
+            }
+            break;
+        case 0xC1:
+        case 0xD1:
+        case 0xE1:
+        case 0xF1:
+            {
+                uint16_t *reg;
+                switch(GET_DST(opcode)) {
+                    case 0:
+                        reg = &registers.bc.raw;
+                        break;
+                    case 2:
+                        reg = &registers.de.raw;
+                        break;
+                    case 4:
+                        reg = &registers.hl.raw;
+                        break;
+                    case 6:
+                        reg = &registers.af.raw;
+                        break;
+                }
+
+                POP_SP(*reg, buffer, registers.sp);
+            }
+            break;
+        case 0xC5:
+        case 0xD5:
+        case 0xE5:
+        case 0xF5:
+            {
+                uint16_t *reg;
+                switch(GET_DST(opcode)) {
+                    case 0:
+                        reg = &registers.bc.raw;
+                        break;
+                    case 2:
+                        reg = &registers.de.raw;
+                        break;
+                    case 4:
+                        reg = &registers.hl.raw;
+                        break;
+                    case 6:
+                        reg = &registers.af.raw;
+                        break;
+                }
+
+                PUSH_SP(*reg, buffer, registers.sp);
             }
             break;
         case 0xE0:
@@ -441,6 +604,18 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 registers.af.a = buffer[registers.bc.c];
             }
             break;
+        case 0xEA:
+            {
+                uint16_t addr = GET_WORD(buffer, pc);
+                buffer[addr] = registers.af.a;
+            }
+            break;
+        case 0xFA:
+            {
+                uint16_t addr = GET_WORD(buffer, pc);
+                registers.af.a = addr;
+            }
+            break;
         case 0xE8:
             {
                 uint8_t byte = GET_BYTE(buffer, pc);
@@ -454,6 +629,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             break;
         case 0xF8:
             {
+                // TODO Double-check this
                 int8_t signed_byte = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 flags->c = carry(registers.sp, signed_byte, registers.sp + signed_byte);
                 flags->h = half_carry(registers.sp, signed_byte, registers.sp + signed_byte);
@@ -465,18 +641,6 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xF9:
             {
                 registers.sp = registers.hl.raw;
-            }
-            break;
-        case 0xEA:
-            {
-                uint16_t addr = GET_WORD(buffer, pc);
-                buffer[addr] = registers.af.a;
-            }
-            break;
-        case 0xFA:
-            {
-                uint16_t addr = GET_WORD(buffer, pc);
-                registers.af.a = addr;
             }
             break;
         case 0xF3:
@@ -493,9 +657,11 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
 
     add_to_cycle(instr.cycles ? instr.cycles : 1);
 
+#ifdef DEBUG
     std::cout << std::format("AF: 0x{:04X} BC: 0x{:04X} DE: 0x{:04X} HL: 0x{:04X} PC: 0x{:04X} SP: 0x{:04X} | {:02X} {:02X} {:02X} {:02X}", registers.af.raw, registers.bc.raw, registers.de.raw, registers.hl.raw, pc, registers.sp, buffer[pc], buffer[pc+1], buffer[pc+2], buffer[pc+3])<< std::endl;
     std::cout << std::format(" [AF]: 0x{:04X} [BC]: 0x{:04X} [DE]: 0x{:04X} [HL]: 0x{:04X}\n", buffer[registers.af.raw], buffer[registers.bc.raw], buffer[registers.de.raw], buffer[registers.hl.raw]) ;
     std::cout << std::format(" [a8]: 0x{:02X} [a16]: 0x{:02X}\n", buffer[GET_BYTE(buffer, pc)], buffer[GET_WORD(buffer, pc)]);
+#endif
     if(next_pc) {
         set_pc(next_pc);
         return 0;

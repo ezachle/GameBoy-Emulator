@@ -95,12 +95,30 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     ei
     0xCB take ntoe!!!!
     */
-    lut[0xC3] = {"JP NZ, a16", 3, 12};
-    lut[0xC4] = {"JP a16", 3, 12};
+    //lut[0xCD] = {"CALL a16", 3, 24};
+
+    lut[0xC4] = {"CALL NZ, a16", 3, 24};
+    lut[0xCC] = {"CALL Z, a16", 3, 24};
+
+    lut[0xD4] = {"CALL NC, a16", 3, 24};
+    lut[0xDC] = {"CALL C, a16", 3, 24};
+
+    lut[0xC2] = {"JP NZ, a16", 3, 12};
+    lut[0xC3] = {"JP a16", 3, 12};
     lut[0xCA] = {"JP Z, a16", 3, 12};
     lut[0xDA] = {"JP C, a16", 3, 12};
-    lut[0xD3] = {"JP NC, a16", 3, 12};
+    lut[0xD2] = {"JP NC, a16", 3, 12};
     lut[0xE9] = {"JP HL", 1, 4};
+
+    lut[0xC1] = {"POP BC", 1, 12};
+    lut[0xD1] = {"POP DE", 1, 12};
+    lut[0xE1] = {"POP HL", 1, 12};
+    lut[0xF1] = {"POP AF", 1, 12};
+
+    lut[0xC5] = {"PUSH BC", 1, 16};
+    lut[0xD5] = {"PUSH DE", 1, 16};
+    lut[0xE5] = {"PUSH HL", 1, 16};
+    lut[0xF5] = {"PUSH AF", 1, 16};
 
     lut[0xE0] = {"LDH [a8], A", 2, 12};
     lut[0xE2] = {"LDH [C], A", 1, 8};
