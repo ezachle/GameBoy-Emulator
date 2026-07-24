@@ -20,24 +20,27 @@
  *
  */
 
-#define DEFAULT_FLAG(flag)      ((flags << 1) & 1)
-#define ZERO_FLAG(flags)        ((flags << 7) & 1)
-#define SUB_FLAG(flags)         ((flags << 6) & 1) // used for BCD
-#define HALF_CARRY_FLAG(flags)  ((flags << 5) & 1) // used for BCD
-#define CARRY_FLAG(flags)       ((flags << 4) & 1)
+#define ZERO_FLAG(flags)        (((flags) >> 7) & 1)
+#define SUB_FLAG(flags)         (((flags) >> 6) & 1) // used for BCD
+#define HALF_CARRY_FLAG(flags)  (((flags) >> 5) & 1) // used for BCD
+#define CARRY_FLAG(flags)       (((flags) >> 4) & 1)
 
-typedef struct {
-    uint8_t z:1;
-    uint8_t n:1;
-    uint8_t h:1;
-    uint8_t c:1;
+typedef union {
+    struct {
+        uint8_t unused:4;
+        uint8_t c:1;
+        uint8_t h:1;
+        uint8_t n:1;
+        uint8_t z:1;
+    };
+    uint8_t raw;
 } Flags_t;
 
-typedef struct {
+typedef struct registers_t {
     union {
         uint16_t raw = 0;
         struct {
-            Flags_t flags;
+            Flags_t f;
             uint8_t a;
         };
     } af;
@@ -78,7 +81,7 @@ public:
 
     uint8_t Disassemble(uint16_t pc);
 
-    const Flags_t get_flags() { return registers.af.flags; }
+    const Flags_t get_flags() { return registers.af.f; }
     const uint64_t get_cycles() { return tot_cycles; }
 private:
     void set_pc(uint16_t pc) { registers.pc = pc; }

@@ -40,7 +40,7 @@ void GameBoy::Run() {
 uint8_t GameBoy::Disassemble(uint16_t pc) {
     uint8_t opcode = buffer[pc];
     InstrInfo_t instr = instr_lut[opcode];
-    Flags_t *flags = &registers.af.flags;
+    Flags_t *flags = &registers.af.f;
     uint16_t next_pc = false;
 
     switch(opcode) {
@@ -332,7 +332,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
 
                 flags->h = (*reg == 0) ? 1 : 0;
                 (*reg)--;
-                flags->z = (reg == 0) ? 1 : 0;
+                flags->z = (*reg == 0) ? 1 : 0;
                 flags->n = 1;
             }
             break;
@@ -764,6 +764,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
 
 #ifdef DEBUG
     std::cout << std::format("AF: 0x{:04X} BC: 0x{:04X} DE: 0x{:04X} HL: 0x{:04X} PC: 0x{:04X} SP: 0x{:04X} | {:02X} {:02X} {:02X} {:02X}", registers.af.raw, registers.bc.raw, registers.de.raw, registers.hl.raw, pc, registers.sp, buffer[pc], buffer[pc+1], buffer[pc+2], buffer[pc+3])<< std::endl;
+    std::cout << std::format("Zero: {} Subtraction {} Half Carry {} Carry {}\n", ZERO_FLAG(registers.af.f.raw), SUB_FLAG(registers.af.f.raw), HALF_CARRY_FLAG(registers.af.f.raw), CARRY_FLAG(registers.af.f.raw));
     std::cout << std::format(" [AF]: 0x{:04X} [BC]: 0x{:04X} [DE]: 0x{:04X} [HL]: 0x{:04X}\n", buffer[registers.af.raw], buffer[registers.bc.raw], buffer[registers.de.raw], buffer[registers.hl.raw]) ;
     std::cout << std::format(" [a8]: 0x{:02X} [a16]: 0x{:02X}\n", buffer[GET_BYTE(buffer, pc)], buffer[GET_WORD(buffer, pc)]);
 #endif
