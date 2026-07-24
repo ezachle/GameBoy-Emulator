@@ -37,14 +37,6 @@ void GameBoy::Run() {
     }
 }
 
-static bool carry(uint16_t a, uint16_t b, uint16_t result) {
-    return ((a ^ b ^ result) & 0x100) != 0;
-}
-
-static bool half_carry(uint8_t a, uint8_t b, uint8_t result) {
-    return ((a ^ b ^ result) & 0x10) != 0;
-}
-
 uint8_t GameBoy::Disassemble(uint16_t pc) {
     uint8_t opcode = buffer[pc];
     InstrInfo_t instr = instr_lut[opcode];
@@ -267,7 +259,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                         break;
                 };
 
-                flags->h = half_carry(*reg, 1, *reg + 1);
+                flags->h = ((*reg & 0x0F) + (1)) > 0x0F;
                 (*reg)++;
                 flags->z = (reg == 0) ? 1 : 0;
                 flags->n = 0;
@@ -338,7 +330,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                         break;
                 };
 
-                flags->h = half_carry(*reg, 1, *reg - 1);
+                flags->h = (*reg == 0) ? 1 : 0;
                 (*reg)--;
                 flags->z = (reg == 0) ? 1 : 0;
                 flags->n = 1;
@@ -383,10 +375,8 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 if(!flags->z) {
                     next_pc = GET_WORD(buffer, pc);
-
                     registers.pc += instr.length;
                     PUSH_SP(registers.pc, buffer, registers.sp);
-
                     instr.cycles = 24;
                 } else {
                     instr.cycles = 12;
@@ -397,10 +387,8 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 if(flags->z) {
                     next_pc = GET_WORD(buffer, pc);
-
                     registers.pc += instr.length;
                     PUSH_SP(registers.pc, buffer, registers.sp);
-
                     instr.cycles = 24;
                 } else {
                     instr.cycles = 12;
@@ -411,10 +399,8 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 if(!flags->c) {
                     next_pc = GET_WORD(buffer, pc);
-
                     registers.pc += instr.length;
                     PUSH_SP(registers.pc, buffer, registers.sp);
-
                     instr.cycles = 24;
                 } else {
                     instr.cycles = 12;
@@ -425,10 +411,8 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 if(flags->c) {
                     next_pc = GET_WORD(buffer, pc);
-
                     registers.pc += instr.length;
                     PUSH_SP(registers.pc, buffer, registers.sp);
-
                     instr.cycles = 24;
                 } else {
                     instr.cycles = 12;
@@ -619,8 +603,8 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xE8:
             {
                 uint8_t byte = GET_BYTE(buffer, pc);
-                flags->c = carry(registers.sp, byte, registers.sp + byte);
-                flags->h = half_carry(registers.sp, byte, registers.sp + byte);
+                flags->c = ((registers.sp & 0xFF) + (byte & 0xFF)) > 0xFF;
+                flags->h = ((registers.sp & 0x0F) + (byte & 0x0F)) > 0x0F;
                 registers.sp += byte;
 
                 flags->z = 0;
@@ -629,10 +613,9 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             break;
         case 0xF8:
             {
-                // TODO Double-check this
                 int8_t signed_byte = static_cast<int8_t>(GET_BYTE(buffer, pc));
-                flags->c = carry(registers.sp, signed_byte, registers.sp + signed_byte);
-                flags->h = half_carry(registers.sp, signed_byte, registers.sp + signed_byte);
+                flags->c = ((registers.sp & 0xFF) + (signed_byte & 0xFF)) > 0xFF;
+                flags->h = ((registers.sp & 0x0F) + (signed_byte & 0x0F)) > 0x0F;
                 registers.hl.raw = registers.sp + signed_byte;
                 flags->z = 0;
                 flags->n = 0;

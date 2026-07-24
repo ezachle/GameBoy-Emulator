@@ -95,13 +95,20 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     ei
     0xCB take ntoe!!!!
     */
-    //lut[0xCD] = {"CALL a16", 3, 24};
+    lut[0xCD] = {"CALL a16", 3, 24};
 
     lut[0xC4] = {"CALL NZ, a16", 3, 24};
     lut[0xCC] = {"CALL Z, a16", 3, 24};
 
     lut[0xD4] = {"CALL NC, a16", 3, 24};
     lut[0xDC] = {"CALL C, a16", 3, 24};
+
+    lut[0xC9] = {"RET", 1, 16};
+    lut[0xD9] = {"RETI", 1, 16};
+    lut[0xC0] = {"RET NZ", 1, 20};
+    lut[0xC8] = {"RET Z", 1, 20};
+    lut[0xD0] = {"RET NC", 1, 20};
+    lut[0xD8] = {"RET C", 1, 20};
 
     lut[0xC2] = {"JP NZ, a16", 3, 12};
     lut[0xC3] = {"JP a16", 3, 12};
