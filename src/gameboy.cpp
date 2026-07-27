@@ -633,7 +633,6 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x94:
         case 0x95:
         case 0x96:
-        case 0x97:
             {
                 uint8_t *src;
                 switch(GET_SRC(opcode)) {
@@ -671,6 +670,15 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 registers.af.a -= *src;
             }
             break;
+        case 0x97:
+            {
+                flags->z = 1;
+                flags->n = 1;
+                flags->h = 0;
+                flags->c = 0;
+                registers.af.a -= registers.af.a;
+            }
+            break;
         case 0x98:
         case 0x99:
         case 0x9A:
@@ -678,7 +686,6 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x9C:
         case 0x9D:
         case 0x9E:
-        case 0x9F:
             {
                 uint8_t *src;
                 switch(GET_SRC(opcode)) {
@@ -714,6 +721,15 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 flags->z = ((result & 0xFF) == 0) ? 1 : 0;
                 flags->n = 1;
 
+                registers.af.a = result;
+            }
+            break;
+        case 0x9F:
+            {
+                uint16_t result = registers.af.a - registers.af.a + flags->c;
+                flags->z = ((result & 0xFF) == 0) ? 1 : 0;
+                flags->n = 1;
+                flags->h = ((registers.af.a & 0x0F) - (registers.af.a & 0x0F) - flags->c) < 0;
                 registers.af.a = result;
             }
             break;
@@ -770,7 +786,6 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xAC:
         case 0xAD:
         case 0xAE:
-        case 0xAF:
             {
                 uint8_t *src;
                 switch(GET_SRC(opcode)) {
@@ -807,6 +822,16 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 flags->n = 0;
 
                 registers.af.a = result;
+            }
+            break;
+        case 0xAF:
+            {
+                flags->z = 1;
+                flags->n = 0;
+                flags->h = 0;
+                flags->c = 0;
+
+                registers.af.a ^= registers.af.a;
             }
             break;
         case 0xB0:
@@ -862,7 +887,6 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xBC:
         case 0xBD:
         case 0xBE:
-        case 0xBF:
             {
                 uint8_t *src;
                 switch(GET_SRC(opcode)) {
@@ -896,6 +920,14 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 flags->c = registers.af.a < *src;
                 flags->z = ((registers.af.a - *src) == 0) ? 1 : 0;
                 flags->n = 1;
+            }
+            break;
+        case 0xBF:
+            {
+                flags->z = 1;
+                flags->n = 1;
+                flags->h = 0;
+                flags->c = 0;
             }
             break;
         case 0xCD:
@@ -1132,6 +1164,90 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t addr = GET_WORD(buffer, pc);
                 registers.af.a = addr;
+            }
+            break;
+        case 0xC6:
+            {
+                uint8_t byte = GET_BYTE(buffer, pc);
+                uint16_t result = registers.af.a + byte;
+                flags->z = (result == 0);
+                flags->n = 0;
+                flags->h = ((registers.af.a & 0x0F) + (byte & 0x0F)) > 0xF;
+                flags->c = (result > 0xFF);
+                registers.af.a = result;
+            }
+            break;
+        case 0xD6:
+            {
+                uint8_t byte = GET_BYTE(buffer, pc);
+                flags->h = ((registers.af.a & 0x0F) < (byte & 0x0F));
+                flags->c = registers.af.a < byte;
+                flags->z = ((registers.af.a - byte) == 0) ? 1 : 0;
+                flags->n = 1;
+                registers.af.a -= byte;
+            }
+            break;
+        case 0xE6:
+            {
+                uint8_t result = registers.af.a & GET_BYTE(buffer, pc);
+                flags->h = 1;
+                flags->c = 0;
+                flags->z = (result == 0) ? 1 : 0;
+                flags->n = 0;
+
+                registers.af.a = result;
+            }
+            break;
+        case 0xF6:
+            {
+                uint8_t result = registers.af.a | GET_BYTE(buffer, pc);
+                flags->h = 0;
+                flags->c = 0;
+                flags->z = (result == 0) ? 1 : 0;
+                flags->n = 0;
+                registers.af.a = result;
+            }
+            break;
+        case 0xCE:
+            {
+                uint8_t byte = GET_BYTE(buffer, pc);
+                flags->h = ((registers.af.a & 0x0F) + (byte & 0x0F) + (flags->c)) > 0x0F;
+                flags->c = ((registers.af.a & 0xFF) + (byte & 0xFF) + (flags->c)) > 0xFF;
+                flags->z = ((registers.af.a + byte) == 0) ? 1 : 0;
+                flags->n = 0;
+                registers.af.a += byte + flags->c;
+            }
+            break;
+        case 0xDE:
+            {
+                uint8_t byte = GET_BYTE(buffer, pc);
+                uint16_t result = registers.af.a - byte + flags->c;
+                flags->h = ((registers.af.a & 0x0F) - (byte & 0x0F) - flags->c) < 0;
+                flags->c = result < 0;
+                flags->z = ((result & 0xFF) == 0) ? 1 : 0;
+                flags->n = 1;
+
+                registers.af.a = result;
+            }
+            break;
+        case 0xEE:
+            {
+                uint8_t result = registers.af.a ^ GET_BYTE(buffer, pc);
+                flags->h = 0;
+                flags->c = 0;
+                flags->z = (result == 0) ? 1 : 0;
+                flags->n = 0;
+
+                registers.af.a = result;
+            }
+            break;
+        case 0xFE:
+            {
+                uint8_t byte = GET_BYTE(buffer, pc);
+                flags->h = ((registers.af.a & 0x0F) < (byte & 0x0F));
+                flags->c = registers.af.a < byte;
+                flags->z = ((registers.af.a - byte) == 0) ? 1 : 0;
+                flags->n = 1;
             }
             break;
         case 0xE8:
