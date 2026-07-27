@@ -285,12 +285,22 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0xEA] = {"LD [a16], A", 3, 16};
     lut[0xFA] = {"LD A, [a16]", 3, 16};
 
+    lut[0xC6] = {"ADD A, n8", 2, 8};
+    lut[0xD6] = {"SUB A, n8", 2, 8};
+    lut[0xE6] = {"AND A, n8", 2, 8};
+    lut[0xF6] = {"OR A, n8", 2, 8};
+
+    lut[0xCE] = {"ADC A, n8", 2, 8};
+    lut[0xDE] = {"SBC A, n8", 2, 8};
+    lut[0xEE] = {"XOR A, n8", 2, 8};
+    lut[0xFE] = {"CP A, n8", 2, 8};
+
     lut[0xE8] = {"ADD SP, e8", 2, 16};
     lut[0xF8] = {"LD HL, SP+e8", 2, 12};
     lut[0xF9] = {"LD SP, HL", 1, 8};
 
     lut[0xF3] = {"DI", 1, 4};
-    lut[0xFB] = {"DI", 1, 4};
+    lut[0xFB] = {"EI", 1, 4};
 
     return lut;
 }
