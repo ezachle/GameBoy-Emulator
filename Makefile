@@ -1,13 +1,16 @@
 CXX = g++
 INCL = include
-FLAGS = -g -Wall -Werror --std=c++20 -I $(INCL)
+FLAGS = -Wall -Werror --std=c++20 -I $(INCL)
 SRC = $(wildcard src/*.cpp)
 SRC_O = $(SRC:.cpp=.o)
 TARGET = GameBoy
 
-.PHONY: all $(TARGET) clean
+.PHONY: all $(TARGET) clean DEBUG
 
 all: $(TARGET)
+
+DEBUG: FLAGS += -g -DDEBUG
+DEBUG: $(TARGET)
 
 $(TARGET): $(SRC_O)
 	$(CXX) $(FLAGS) -o $@ $^
