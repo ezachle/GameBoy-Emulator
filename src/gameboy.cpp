@@ -219,7 +219,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                         break;
                 };
 
-                reg++;
+                (*reg)++;
             }
             break;
         case 0x04:
@@ -261,7 +261,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
 
                 flags->h = ((*reg & 0x0F) + (1)) > 0x0F;
                 (*reg)++;
-                flags->z = (reg == 0) ? 1 : 0;
+                flags->z = (*reg == 0) ? 1 : 0;
                 flags->n = 0;
             }
             break;
@@ -290,7 +290,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                         break;
                 };
 
-                reg--;
+                (*reg)--;
             }
             break;
         case 0x05:
@@ -365,13 +365,13 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             break;
         case 0x18:
             {
-                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 next_pc = pc + instr.length + relative_pc;
             }
             break;
         case 0x20:
             {
-                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 if(!flags->z) {
                     next_pc = pc + instr.length + relative_pc;
                     instr.cycles = 12;
@@ -382,7 +382,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             break;
         case 0x28:
             {
-                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 if(flags->z) {
                     next_pc = pc + instr.length + relative_pc;
                     instr.cycles = 12;
@@ -393,7 +393,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             break;
         case 0x30:
             {
-                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 if(!flags->c) {
                     next_pc = pc + instr.length + relative_pc;
                     instr.cycles = 12;
@@ -404,7 +404,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             break;
         case 0x38:
             {
-                uint8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
+                int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 if(flags->c) {
                     next_pc = pc + instr.length + relative_pc;
                     instr.cycles = 12;
@@ -1291,11 +1291,17 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
     add_to_cycle(instr.cycles ? instr.cycles : 1);
 
 #ifdef DEBUG
-    std::cout << std::format("AF: 0x{:04X} BC: 0x{:04X} DE: 0x{:04X} HL: 0x{:04X} PC: 0x{:04X} SP: 0x{:04X} | {:02X} {:02X} {:02X} {:02X}", registers.af.raw, registers.bc.raw, registers.de.raw, registers.hl.raw, pc, registers.sp, buffer[pc], buffer[pc+1], buffer[pc+2], buffer[pc+3])<< std::endl;
-    std::cout << std::format("Zero: {} Subtraction {} Half Carry {} Carry {}\n", ZERO_FLAG(registers.af.f.raw), SUB_FLAG(registers.af.f.raw), HALF_CARRY_FLAG(registers.af.f.raw), CARRY_FLAG(registers.af.f.raw));
-    std::cout << std::format(" [AF]: 0x{:04X} [BC]: 0x{:04X} [DE]: 0x{:04X} [HL]: 0x{:04X}\n", buffer[registers.af.raw], buffer[registers.bc.raw], buffer[registers.de.raw], buffer[registers.hl.raw]) ;
-    std::cout << std::format(" [a8]: 0x{:02X} [a16]: 0x{:02X}\n", buffer[GET_BYTE(buffer, pc)], buffer[GET_WORD(buffer, pc)]);
+    std::cout << std::format("AF: 0x{:04X} BC: 0x{:04X} DE: 0x{:04X} HL: 0x{:04X} PC: 0x{:04X} SP: 0x{:04X} {}{}{}{} | {:02X} {:02X} {:02X} {:02X}\n", registers.af.raw, registers.bc.raw, registers.de.raw, registers.hl.raw, pc, registers.sp, ZERO_FLAG(registers.af.f.raw) ? 'Z' : '-', SUB_FLAG(registers.af.f.raw) ? 'N' : '-', HALF_CARRY_FLAG(registers.af.f.raw) ? 'H' : '-', CARRY_FLAG(registers.af.f.raw) ? 'C' : '-', buffer[pc], buffer[pc+1], buffer[pc+2], buffer[pc+3]);
+    std::cout << std::format("\t[AF]: 0x{:04X} [BC]: 0x{:04X} [DE]: 0x{:04X} [HL]: 0x{:04X}\n", buffer[registers.af.raw], buffer[registers.bc.raw], buffer[registers.de.raw], buffer[registers.hl.raw]) ;
+    std::cout << std::format("\t[a8]: 0x{:02X} [a16]: 0x{:02X}\n", buffer[GET_BYTE(buffer, pc)], buffer[GET_WORD(buffer, pc)]);
 #endif
+
+    if(buffer[0xFF02] == 0x81) {
+        char c = buffer[0xFF01];
+        std::cout << std::format("TEST RESULT: {}\n", c);;
+        buffer[0xFF02] = 0;
+    }
+
     if(next_pc) {
         set_pc(next_pc);
         return 0;
