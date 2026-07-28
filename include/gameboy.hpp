@@ -86,6 +86,9 @@ public:
 private:
     void set_pc(uint16_t pc) { registers.pc = pc; }
     void add_to_cycle(uint8_t inc) { tot_cycles += inc; }
+    uint8_t* get_src_reg_u8(uint8_t opcode);
+    uint8_t* get_dst_reg_u8(uint8_t opcode);
+
     Registers_t registers;
     uint64_t tot_cycles = 0;
 

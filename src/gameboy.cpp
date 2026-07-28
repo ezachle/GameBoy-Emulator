@@ -37,6 +37,52 @@ void GameBoy::Run() {
     }
 }
 
+uint8_t* GameBoy::get_src_reg_u8(uint8_t opcode) {
+    switch(GET_SRC(opcode)) {
+        case REG_B:
+            return &registers.bc.b;
+        case REG_C:
+            return &registers.bc.c;
+        case REG_D:
+            return &registers.de.d;
+        case REG_E:
+            return &registers.de.e;
+        case REG_H:
+            return &registers.hl.h;
+        case REG_L:
+            return &registers.hl.l;
+        case REG_X:
+            return &buffer[registers.hl.raw];
+        case REG_A:
+            return &registers.af.a;
+    };
+
+    return nullptr;
+}
+
+uint8_t* GameBoy::get_dst_reg_u8(uint8_t opcode) {
+    switch(GET_DST(opcode)) {
+        case REG_B:
+            return &registers.bc.b;
+        case REG_C:
+            return &registers.bc.c;
+        case REG_D:
+            return &registers.de.d;
+        case REG_E:
+            return &registers.de.e;
+        case REG_H:
+            return &registers.hl.h;
+        case REG_L:
+            return &registers.hl.l;
+        case REG_X:
+            return &buffer[registers.hl.raw];
+        case REG_A:
+            return &registers.af.a;
+    };
+
+    return nullptr;
+}
+
 uint8_t GameBoy::Disassemble(uint16_t pc) {
     uint8_t opcode = buffer[pc];
     InstrInfo_t instr = instr_lut[opcode];
@@ -51,20 +97,20 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t *dst;
                 switch(GET_DST(opcode)) {
-                    case 0:
-                    case 1:
+                    case REG_B:
+                    case REG_C:
                         dst = &registers.bc.raw;
                         break;
-                    case 2:
-                    case 3:
+                    case REG_D:
+                    case REG_E:
                         dst = &registers.de.raw;
                         break;
-                    case 4:
-                    case 5:
+                    case REG_H:
+                    case REG_L:
                         dst = &registers.hl.raw;
                         break;
-                    case 6:
-                    case 7:
+                    case REG_X:
+                    case REG_A:
                         dst = &registers.sp;
                         break;
                 };
@@ -79,21 +125,21 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t dst;
                 switch(GET_DST(opcode)) {
-                    case 0:
-                    case 1:
+                    case REG_B:
+                    case REG_C:
                         dst = registers.bc.raw;
                         break;
-                    case 2:
-                    case 3:
+                    case REG_D:
+                    case REG_E:
                         dst = registers.de.raw;
                         break;
-                    case 4:
-                    case 5:
+                    case REG_H:
+                    case REG_L:
                         dst = registers.hl.raw;
                         registers.hl.raw++;
                         break;
-                    case 6:
-                    case 7:
+                    case REG_X:
+                    case REG_A:
                         dst = registers.hl.raw;
                         registers.hl.raw--;
                         break;
@@ -109,20 +155,20 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint8_t *dst;
                 switch(GET_DST(opcode)) {
-                    case 0:
-                    case 1:
+                    case REG_B:
+                    case REG_C:
                         dst = &registers.bc.b;
                         break;
-                    case 2:
-                    case 3:
+                    case REG_D:
+                    case REG_E:
                         dst = &registers.de.d;
                         break;
-                    case 4:
-                    case 5:
+                    case REG_H:
+                    case REG_L:
                         dst = &registers.hl.h;
                         break;
-                    case 6:
-                    case 7:
+                    case REG_X:
+                    case REG_A:
                         dst = &buffer[registers.hl.raw];
                         break;
                 };
@@ -143,21 +189,21 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t dst;
                 switch(GET_DST(opcode)) {
-                    case 0:
-                    case 1:
+                    case REG_B:
+                    case REG_C:
                         dst = registers.bc.raw;
                         break;
-                    case 2:
-                    case 3:
+                    case REG_D:
+                    case REG_E:
                         dst = registers.de.raw;
                         break;
-                    case 4:
-                    case 5:
+                    case REG_H:
+                    case REG_L:
                         dst = registers.hl.raw;
                         registers.hl.raw++;
                         break;
-                    case 6:
-                    case 7:
+                    case REG_X:
+                    case REG_A:
                         dst = registers.hl.raw;
                         registers.hl.raw--;
                         break;
@@ -173,20 +219,20 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint8_t *dst;
                 switch(GET_DST(opcode)) {
-                    case 0:
-                    case 1:
+                    case REG_B:
+                    case REG_C:
                         dst = &registers.bc.c;
                         break;
-                    case 2:
-                    case 3:
+                    case REG_D:
+                    case REG_E:
                         dst = &registers.de.e;
                         break;
-                    case 4:
-                    case 5:
+                    case REG_H:
+                    case REG_L:
                         dst = &registers.hl.l;
                         break;
-                    case 6:
-                    case 7:
+                    case REG_X:
+                    case REG_A:
                         dst = &registers.af.a;
                         break;
                 };
@@ -201,20 +247,20 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t *reg;
                 switch(GET_DST(opcode)) {
-                    case 0:
-                    case 1:
+                    case REG_B:
+                    case REG_C:
                         reg = &registers.bc.raw;
                         break;
-                    case 2:
-                    case 3:
+                    case REG_D:
+                    case REG_E:
                         reg = &registers.de.raw;
                         break;
-                    case 4:
-                    case 5:
+                    case REG_H:
+                    case REG_L:
                         reg = &registers.hl.raw;
                         break;
-                    case 6:
-                    case 7:
+                    case REG_X:
+                    case REG_A:
                         reg = &registers.sp;
                         break;
                 };
@@ -231,34 +277,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x2C:
         case 0x3C:
             {
-                uint8_t *reg = nullptr;
-                switch(GET_DST(opcode)) {
-                    case 0:
-                        reg = &registers.bc.b;
-                        break;
-                    case 1:
-                        reg = &registers.bc.c;
-                        break;
-                    case 2:
-                        reg = &registers.de.d;
-                        break;
-                    case 3:
-                        reg = &registers.de.e;
-                        break;
-                    case 4:
-                        reg = &registers.hl.h;
-                        break;
-                    case 5:
-                        reg = &registers.hl.l;
-                        break;
-                    case 6:
-                        reg = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        reg = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *reg = get_dst_reg_u8(opcode);
                 flags->h = ((*reg & 0x0F) + (1)) > 0x0F;
                 (*reg)++;
                 flags->z = (*reg == 0) ? 1 : 0;
@@ -272,20 +291,20 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t *reg;
                 switch(GET_DST(opcode)) {
-                    case 0:
-                    case 1:
+                    case REG_B:
+                    case REG_C:
                         reg = &registers.bc.raw;
                         break;
-                    case 2:
-                    case 3:
+                    case REG_D:
+                    case REG_E:
                         reg = &registers.de.raw;
                         break;
-                    case 4:
-                    case 5:
+                    case REG_H:
+                    case REG_L:
                         reg = &registers.hl.raw;
                         break;
-                    case 6:
-                    case 7:
+                    case REG_X:
+                    case REG_A:
                         reg = &registers.sp;
                         break;
                 };
@@ -302,34 +321,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x2D:
         case 0x3D:
             {
-                uint8_t *reg = nullptr;
-                switch(GET_DST(opcode)) {
-                    case 0:
-                        reg = &registers.bc.b;
-                        break;
-                    case 1:
-                        reg = &registers.bc.c;
-                        break;
-                    case 2:
-                        reg = &registers.de.d;
-                        break;
-                    case 3:
-                        reg = &registers.de.e;
-                        break;
-                    case 4:
-                        reg = &registers.hl.h;
-                        break;
-                    case 5:
-                        reg = &registers.hl.l;
-                        break;
-                    case 6:
-                        reg = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        reg = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *reg = get_dst_reg_u8(opcode);
                 flags->h = (*reg == 0) ? 1 : 0;
                 (*reg)--;
                 flags->z = (*reg == 0) ? 1 : 0;
@@ -343,19 +335,23 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t *reg;
                 switch(GET_DST(opcode)) {
-                    case 1:
+                    case REG_B:
+                    case REG_C:
                         reg = &registers.bc.raw;
                         break;
-                    case 3:
+                    case REG_D:
+                    case REG_E:
+                        reg = &registers.de.raw;
+                        break;
+                    case REG_H:
+                    case REG_L:
                         reg = &registers.hl.raw;
                         break;
-                    case 5:
-                        reg = &registers.hl.raw;
-                        break;
-                    case 7:
+                    case REG_X:
+                    case REG_A:
                         reg = &registers.sp;
                         break;
-                }
+                };
 
                 flags->h = ((registers.hl.raw & 0x0F) + (*reg & 0x0F)) > 0x0F;
                 flags->c = ((registers.hl.raw & 0xFF) + (*reg & 0xFF)) > 0xFF;
@@ -524,61 +520,8 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x7E:
         case 0x7F:
             {
-                uint8_t *dst;
-                uint8_t *src;
-                switch(GET_DST(opcode)) {
-                    case 0:
-                        dst = &registers.bc.b;
-                        break;
-                    case 1:
-                        dst = &registers.bc.c;
-                        break;
-                    case 2:
-                        dst = &registers.de.d;
-                        break;
-                    case 3:
-                        dst = &registers.de.e;
-                        break;
-                    case 4:
-                        dst = &registers.hl.h;
-                        break;
-                    case 5:
-                        dst = &registers.hl.l;
-                        break;
-                    case 6:
-                        dst = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        dst = &registers.af.a;
-                        break;
-                };
-
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
+                uint8_t *dst = get_dst_reg_u8(opcode);
+                uint8_t *src = get_src_reg_u8(opcode);
 
                 *dst = *src;
             }
@@ -592,33 +535,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x86:
         case 0x87:
             {
-                uint8_t *src;
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
+                uint8_t *src = get_src_reg_u8(opcode);
 
                 flags->h = ((registers.af.a & 0x0F) + (*src & 0x0F)) > 0x0F;
                 flags->c = ((registers.af.a & 0xFF) + (*src & 0xFF)) > 0xFF;
@@ -637,34 +554,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x8E:
         case 0x8F:
             {
-                uint8_t *src;
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *src = get_src_reg_u8(opcode);
                 flags->h = ((registers.af.a & 0x0F) + (*src & 0x0F) + (flags->c)) > 0x0F;
                 flags->c = ((registers.af.a & 0xFF) + (*src & 0xFF) + (flags->c)) > 0xFF;
                 flags->z = ((registers.af.a + *src) == 0) ? 1 : 0;
@@ -681,34 +571,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x95:
         case 0x96:
             {
-                uint8_t *src;
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *src = get_src_reg_u8(opcode);
                 flags->h = ((registers.af.a & 0x0F) < (*src & 0x0F));
                 flags->c = registers.af.a < *src;
                 flags->z = ((registers.af.a - *src) == 0) ? 1 : 0;
@@ -734,34 +597,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0x9D:
         case 0x9E:
             {
-                uint8_t *src;
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *src = get_src_reg_u8(opcode);
                 uint16_t result = registers.af.a - *src + flags->c;
                 flags->h = ((registers.af.a & 0x0F) - (*src & 0x0F) - flags->c) < 0;
                 flags->c = result < 0;
@@ -789,34 +625,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xA6:
         case 0xA7:
             {
-                uint8_t *src;
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *src = get_src_reg_u8(opcode);
                 uint8_t result = registers.af.a & (*src);
                 flags->h = 1;
                 flags->c = 0;
@@ -834,34 +643,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xAD:
         case 0xAE:
             {
-                uint8_t *src;
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *src = get_src_reg_u8(opcode);
                 uint8_t result = registers.af.a ^ (*src);
                 flags->h = 0;
                 flags->c = 0;
@@ -890,34 +672,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xB6:
         case 0xB7:
             {
-                uint8_t *src;
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *src = get_src_reg_u8(opcode);
                 uint8_t result = registers.af.a | (*src);
                 flags->h = 0;
                 flags->c = 0;
@@ -935,34 +690,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xBD:
         case 0xBE:
             {
-                uint8_t *src;
-                switch(GET_SRC(opcode)) {
-                    case 0:
-                        src = &registers.bc.b;
-                        break;
-                    case 1:
-                        src = &registers.bc.c;
-                        break;
-                    case 2:
-                        src = &registers.de.d;
-                        break;
-                    case 3:
-                        src = &registers.de.e;
-                        break;
-                    case 4:
-                        src = &registers.hl.h;
-                        break;
-                    case 5:
-                        src = &registers.hl.l;
-                        break;
-                    case 6:
-                        src = &buffer[registers.hl.raw];
-                        break;
-                    case 7:
-                        src = &registers.af.a;
-                        break;
-                };
-
+                uint8_t *src = get_src_reg_u8(opcode);
                 flags->h = ((registers.af.a & 0x0F) < (*src & 0x0F));
                 flags->c = registers.af.a < *src;
                 flags->z = ((registers.af.a - *src) == 0) ? 1 : 0;
@@ -1140,19 +868,23 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t *reg;
                 switch(GET_DST(opcode)) {
-                    case 0:
+                    case REG_B:
+                    case REG_C:
                         reg = &registers.bc.raw;
                         break;
-                    case 2:
+                    case REG_D:
+                    case REG_E:
                         reg = &registers.de.raw;
                         break;
-                    case 4:
+                    case REG_H:
+                    case REG_L:
                         reg = &registers.hl.raw;
                         break;
-                    case 6:
+                    case REG_X:
+                    case REG_A:
                         reg = &registers.af.raw;
                         break;
-                }
+                };
 
                 POP_SP(*reg, buffer, registers.sp);
             }
@@ -1164,19 +896,23 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             {
                 uint16_t *reg;
                 switch(GET_DST(opcode)) {
-                    case 0:
+                    case REG_B:
+                    case REG_C:
                         reg = &registers.bc.raw;
                         break;
-                    case 2:
+                    case REG_D:
+                    case REG_E:
                         reg = &registers.de.raw;
                         break;
-                    case 4:
+                    case REG_H:
+                    case REG_L:
                         reg = &registers.hl.raw;
                         break;
-                    case 6:
+                    case REG_X:
+                    case REG_A:
                         reg = &registers.af.raw;
                         break;
-                }
+                };
 
                 PUSH_SP(*reg, buffer, registers.sp);
             }
