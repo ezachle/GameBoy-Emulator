@@ -413,6 +413,53 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 }
             }
             break;
+        case 0x07:
+            {
+                uint8_t b7 = (registers.af.a >> 7);
+                registers.af.a = (registers.af.a << 1) | b7;
+
+                registers.af.f.z = 0;
+                registers.af.f.n = 0;
+                registers.af.f.h = 0;
+                registers.af.f.c = b7;
+            }
+            break;
+        case 0x17:
+            {
+                uint8_t carry = registers.af.f.c;
+                uint8_t b7 = (registers.af.a >> 7);
+                registers.af.a = (registers.af.a << 1) | carry;
+
+                registers.af.f.z = 0;
+                registers.af.f.n = 0;
+                registers.af.f.h = 0;
+                registers.af.f.c = b7;
+            }
+            break;
+        case 0x0F:
+            {
+                uint8_t b0 = registers.af.a & 1; 
+                registers.af.a = (registers.af.a >> 1) | (b0 << 7);
+
+                registers.af.f.z = 0;
+                registers.af.f.n = 0;
+                registers.af.f.h = 0;
+                registers.af.f.c = b0;
+            }
+            break;
+        case 0x1F:
+            {
+                uint8_t carry = registers.af.f.c;
+                uint8_t b0 = registers.af.a & 1;
+                registers.af.a = (registers.af.a >> 1) | (carry << 7);
+
+                registers.af.f.z = 0;
+                registers.af.f.n = 0;
+                registers.af.f.h = 0;
+                registers.af.f.c = b0;
+            }
+            break;
+
         case 0x40:
         case 0x41:
         case 0x42:
