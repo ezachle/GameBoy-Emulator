@@ -85,7 +85,7 @@ uint8_t* GameBoy::get_dst_reg_u8(uint8_t opcode) {
 
 
 #define CALL(new_pc)                                    \
-    next_pc = GET_WORD(buffer, pc);                     \
+    next_pc = new_pc;                                   \
     registers.pc += instr.length;                       \
     PUSH_SP(registers.pc, buffer, registers.sp);        \
 
