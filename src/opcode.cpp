@@ -79,6 +79,17 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0x28] = {"JR Z, e8", 2, 12};
     lut[0x30] = {"JR NC, e8", 2, 12};
     lut[0x38] = {"JR C, e8", 2, 12};
+
+    lut[0x07] = {"RLCA", 1, 4};
+    lut[0x17] = {"RLA", 1, 4};
+    lut[0x0F] = {"RRCA", 1, 4};
+    lut[0x1F] = {"RRA", 1, 4};
+
+    lut[0x27] = {"DAA", 1, 4};
+    lut[0x37] = {"SCF", 1, 4};
+
+    lut[0x2F] = {"CPL", 1, 4};
+    lut[0x3F] = {"CCF", 1, 4};
     
     // Block 1
     lut[0x40] = {"LD B, B", 1, 4};

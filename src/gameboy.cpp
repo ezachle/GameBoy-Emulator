@@ -455,7 +455,52 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
                 registers.af.f.c = b0;
             }
             break;
+        case 0x27:
+            {
+                // needs to be tested
+                uint8_t old_cf = flags->c;
+                uint8_t old_hf = flags->h;
+                uint16_t total = 0;
+                if((registers.af.a & 0x0F) > 9 || old_hf) {
+                    total += 6;
+                    flags->h = 1;
+                    if(old_cf)
+                        flags->c = old_cf;
+                } else {
+                    flags->h = 0;
+                }
 
+                if(registers.af.a > 0x99 || old_cf) {
+                    total += 0x60;
+                    flags->c = 1;
+                } else {
+                    flags->c = 0;
+                }
+
+                registers.af.a += total;
+            }
+            break;
+        case 0x37:
+            {
+                flags->n = 0;
+                flags->h = 0;
+                flags->c = 1;
+            }
+            break;
+        case 0x2F:
+            {
+                registers.af.a = ~registers.af.a;
+                flags->n = 1;
+                flags->h = 1;
+            }
+            break;
+        case 0x3F:
+            {
+                flags->n = 0;
+                flags->h = 0;
+                flags->c = ~flags->c;
+            }
+            break;
         case 0x40:
         case 0x41:
         case 0x42:
