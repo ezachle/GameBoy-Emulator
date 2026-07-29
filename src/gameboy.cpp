@@ -83,6 +83,12 @@ uint8_t* GameBoy::get_dst_reg_u8(uint8_t opcode) {
     return nullptr;
 }
 
+
+#define CALL(new_pc)                                    \
+    next_pc = GET_WORD(buffer, pc);                     \
+    registers.pc += instr.length;                       \
+    PUSH_SP(registers.pc, buffer, registers.sp);        \
+
 uint8_t GameBoy::Disassemble(uint16_t pc) {
     uint8_t opcode = buffer[pc];
     InstrInfo_t instr = instr_lut[opcode];
@@ -752,17 +758,13 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
             break;
         case 0xCD:
             {
-                next_pc = GET_WORD(buffer, pc);
-                registers.pc += instr.length;
-                PUSH_SP(registers.pc, buffer, registers.sp);
+                CALL(GET_WORD(buffer, pc));
             }
             break;
         case 0xC4:
             {
                 if(!flags->z) {
-                    next_pc = GET_WORD(buffer, pc);
-                    registers.pc += instr.length;
-                    PUSH_SP(registers.pc, buffer, registers.sp);
+                    CALL(GET_WORD(buffer, pc));
                     instr.cycles = 24;
                 } else {
                     instr.cycles = 12;
@@ -772,9 +774,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xCC:
             {
                 if(flags->z) {
-                    next_pc = GET_WORD(buffer, pc);
-                    registers.pc += instr.length;
-                    PUSH_SP(registers.pc, buffer, registers.sp);
+                    CALL(GET_WORD(buffer, pc));
                     instr.cycles = 24;
                 } else {
                     instr.cycles = 12;
@@ -784,9 +784,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xD4:
             {
                 if(!flags->c) {
-                    next_pc = GET_WORD(buffer, pc);
-                    registers.pc += instr.length;
-                    PUSH_SP(registers.pc, buffer, registers.sp);
+                    CALL(GET_WORD(buffer, pc));
                     instr.cycles = 24;
                 } else {
                     instr.cycles = 12;
@@ -796,9 +794,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xDC:
             {
                 if(flags->c) {
-                    next_pc = GET_WORD(buffer, pc);
-                    registers.pc += instr.length;
-                    PUSH_SP(registers.pc, buffer, registers.sp);
+                    CALL(GET_WORD(buffer, pc));
                     instr.cycles = 24;
                 } else {
                     instr.cycles = 12;
@@ -1102,6 +1098,18 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         case 0xF9:
             {
                 registers.sp = registers.hl.raw;
+            }
+            break;
+        case 0xC7:
+        case 0xD7:
+        case 0xE7:
+        case 0xF7:
+        case 0xCF:
+        case 0xDF:
+        case 0xEF:
+        case 0xFF:
+            {
+                CALL(opcode & 0x38);
             }
             break;
         case 0xF3:

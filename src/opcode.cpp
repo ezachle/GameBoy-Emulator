@@ -310,6 +310,16 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0xF8] = {"LD HL, SP+e8", 2, 12};
     lut[0xF9] = {"LD SP, HL", 1, 8};
 
+    lut[0xC7] = {"RET $00", 1, 16};
+    lut[0xD7] = {"RET $10", 1, 16};
+    lut[0xE7] = {"RET $20", 1, 16};
+    lut[0xF7] = {"RET $30", 1, 16};
+
+    lut[0xCF] = {"RET $08", 1, 16};
+    lut[0xDF] = {"RET $18", 1, 16};
+    lut[0xEF] = {"RET $28", 1, 16};
+    lut[0xFF] = {"RET $38", 1, 16};
+
     lut[0xF3] = {"DI", 1, 4};
     lut[0xFB] = {"EI", 1, 4};
 
