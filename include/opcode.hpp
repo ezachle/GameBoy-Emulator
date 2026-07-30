@@ -11,6 +11,7 @@ typedef struct {
 } InstrInfo_t;
 
 extern std::array<InstrInfo_t, 0x100> instr_lut;
+extern std::array<InstrInfo_t, 0x100> instr_prefix_lut;
 
 typedef enum { REG_B = 0, REG_C, REG_D, REG_E, REG_H, REG_L, REG_X, REG_A } regs_t;
 

@@ -86,6 +86,10 @@ public:
 private:
     void set_pc(uint16_t pc) { registers.pc = pc; }
     void add_to_cycle(uint8_t inc) { tot_cycles += inc; }
+
+    uint16_t process_instructions(uint16_t pc);
+    uint16_t process_prefix_instructions(uint16_t pc);
+
     uint8_t* get_src_reg_u8(uint8_t opcode);
     uint8_t* get_dst_reg_u8(uint8_t opcode);
 
@@ -95,6 +99,7 @@ private:
     std::unique_ptr<uint8_t[]> buffer;
 
     bool enable_interrupt = false;
+    bool prefix_instr = false;
 
     std::ifstream gb_file;
     uint64_t      gb_file_size;

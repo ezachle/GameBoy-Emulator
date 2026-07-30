@@ -322,8 +322,25 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
 
     lut[0xF3] = {"DI", 1, 4};
     lut[0xFB] = {"EI", 1, 4};
+    lut[0xCB] = {"PREFIX", 1, 4};
 
     return lut;
 }
 
+static std::array<InstrInfo_t, 0x100> init_prefix_lut() {
+    std::array<InstrInfo_t, 0x100> prefix_lut {};
+
+    prefix_lut[0x00] = {"RLC B", 2, 8};
+    prefix_lut[0x01] = {"RLC C", 2, 8};
+    prefix_lut[0x02] = {"RLC D", 2, 8};
+    prefix_lut[0x03] = {"RLC E", 2, 8};
+    prefix_lut[0x04] = {"RLC H", 2, 8};
+    prefix_lut[0x05] = {"RLC L", 2, 8};
+    prefix_lut[0x06] = {"RLC [HL]", 2, 16};
+    prefix_lut[0x07] = {"RLC A", 2, 8};
+
+    return prefix_lut;
+}
+
 std::array<InstrInfo_t, 0x100> instr_lut = init_lut();
+std::array<InstrInfo_t, 0x100> instr_prefix_lut = init_prefix_lut();
