@@ -90,6 +90,9 @@ private:
     uint16_t process_instructions(uint16_t pc);
     uint16_t process_prefix_instructions(uint16_t pc);
 
+    void memory_write(uint16_t addr, uint8_t data);
+    uint8_t memory_read(uint16_t addr) { return buffer[addr]; }
+
     uint8_t* get_src_reg_u8(uint8_t opcode);
     uint8_t* get_dst_reg_u8(uint8_t opcode);
 
@@ -106,12 +109,16 @@ private:
     std::string   file_name;
 };
 
-#define POP_SP(data, buffer, sp)                                \
-    data = (buffer[sp+1] << 8) | buffer[sp];                    \
-    sp += 2;                                                    \
+#define POP_SP(data, buffer, sp)                    \
+    do {                                            \
+        data = (buffer[sp+1] << 8) | buffer[sp];    \
+        sp += 2;                                    \
+    } while(0);                                     \
 
-#define PUSH_SP(data, buffer, sp)                                \
-    sp -= 2;                                                     \
-    buffer[sp] = data & 0xFF;                                    \
-    buffer[sp+1] = (data >> 8) & 0xFF;                           \
+#define PUSH_SP(data, buffer, sp)                   \
+    do {                                            \
+        sp -= 2;                                    \
+        memory_write(sp, data & 0xFF);              \
+        memory_write(sp + 1, (data >> 8) & 0xFF);   \
+    } while(0);                                     \
 

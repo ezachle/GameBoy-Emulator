@@ -32,7 +32,7 @@ GameBoy::~GameBoy() {
 void GameBoy::Run() {
     uint16_t *pc = &registers.pc;
 
-    while(*pc < gb_file_size) {
+    while(*pc < 0xFFFF) {
         *pc += Disassemble(*pc);
     }
 }
@@ -88,8 +88,19 @@ uint8_t* GameBoy::get_dst_reg_u8(uint8_t opcode) {
     registers.pc += instr.length;                       \
     PUSH_SP(registers.pc, buffer, registers.sp);        \
 
+void GameBoy::memory_write(uint16_t addr, uint8_t data) {
+    buffer[addr] = data;
+
+    if(addr == 0xFF02 && data == 0x81) {
+        uint8_t c = buffer[0xFF01];
+        putchar(c);
+        fflush(stdout);
+        buffer[0xFF02] = 0x01;
+    }
+}
+
 uint16_t GameBoy::process_instructions(uint16_t pc) {
-    uint8_t opcode = buffer[pc];
+    uint8_t opcode = memory_read(pc);
     InstrInfo_t instr = instr_lut[opcode];
     Flags_t *flags = &registers.af.f;
     uint16_t next_pc = 0;
@@ -150,7 +161,7 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
                         break;
                 };
                 
-                buffer[dst] = registers.af.a;
+                memory_write(dst, registers.af.a);
             }
             break;
         case 0x06:
@@ -158,7 +169,8 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
         case 0x26:
         case 0x36:
             {
-                uint8_t *dst;
+                uint8_t *dst = nullptr;
+                uint8_t data = GET_BYTE(buffer, pc);
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
@@ -174,17 +186,19 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
                         break;
                     case REG_X:
                     case REG_A:
-                        dst = &buffer[registers.hl.raw];
+                        memory_write(registers.hl.raw, data);
                         break;
                 };
                 
-                *dst = GET_BYTE(buffer, pc);
+                if(dst != nullptr) {
+                    *dst = data;
+                }
             }
             break;
         case 0x08:
             {
                 uint16_t dst = GET_WORD(buffer, pc);
-                buffer[dst] = registers.sp;
+                memory_write(dst, registers.sp);
             }
             break;
         case 0x0A:
@@ -214,7 +228,7 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
                         break;
                 };
                 
-                registers.af.a = buffer[dst];
+                registers.af.a = memory_read(dst);
             }
             break;
         case 0x0E:
@@ -855,7 +869,7 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 if(!flags->z) {
                     instr.cycles = 16;
-                    next_pc = (buffer[pc + 2] << 8) | buffer[pc + 1];
+                    next_pc = GET_WORD(buffer, pc);
                 } else {
                     instr.cycles = 12;
                 }
@@ -863,14 +877,14 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             break;
         case 0xC3:
             {
-                next_pc = (buffer[pc + 2] << 8) | buffer[pc + 1];
+                next_pc = GET_WORD(buffer, pc);
             }
             break;
         case 0xCA:
             {
                 if(flags->z) {
                     instr.cycles = 16;
-                    next_pc = (buffer[pc + 2] << 8) | buffer[pc + 1];
+                    next_pc = GET_WORD(buffer, pc);
                 } else {
                     instr.cycles = 12;
                 }
@@ -880,7 +894,7 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 if(flags->c) {
                     instr.cycles = 16;
-                    next_pc = (buffer[pc + 2] << 8) | buffer[pc + 1];
+                    next_pc = GET_WORD(buffer, pc);
                 } else {
                     instr.cycles = 12;
                 }
@@ -890,7 +904,7 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 if(!flags->c) {
                     instr.cycles = 16;
-                    next_pc = (buffer[pc + 2] << 8) | buffer[pc + 1];
+                    next_pc = GET_WORD(buffer, pc);
                 } else {
                     instr.cycles = 12;
                 }
@@ -898,7 +912,7 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             break;
         case 0xE9:
             {
-                next_pc = (buffer[pc + 2] << 8) | buffer[pc + 1];
+                next_pc = registers.hl.raw;
             }
             break;
         case 0xC1:
@@ -959,34 +973,35 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             break;
         case 0xE0:
             {
-                buffer[GET_BYTE(buffer, pc)] = registers.af.a;
+                uint8_t addr = GET_BYTE(buffer, pc);
+                memory_write(0xFF00 + addr, registers.af.a);
             }
             break;
         case 0xE2:
             {
-                buffer[registers.bc.c] = registers.af.a;
+                memory_write(0xFF00 + registers.bc.c, registers.af.a);
             }
             break;
         case 0xF0:
             {
-                registers.af.a = buffer[GET_BYTE(buffer, pc)];
+                registers.af.a = memory_read(0xFF00 + GET_BYTE(buffer, pc));
             }
             break;
         case 0xF2:
             {
-                registers.af.a = buffer[registers.bc.c];
+                registers.af.a = memory_read(0xFF00 + registers.bc.c);
             }
             break;
         case 0xEA:
             {
                 uint16_t addr = GET_WORD(buffer, pc);
-                buffer[addr] = registers.af.a;
+                memory_write(addr, registers.af.a);
             }
             break;
         case 0xFA:
             {
                 uint16_t addr = GET_WORD(buffer, pc);
-                registers.af.a = addr;
+                registers.af.a = memory_read(addr);
             }
             break;
         case 0xC6:
@@ -1130,7 +1145,7 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
 }
 
 uint16_t GameBoy::process_prefix_instructions(uint16_t pc) {
-    uint8_t opcode = buffer[pc];
+    uint8_t opcode = memory_read(pc);
     InstrInfo_t instr = instr_prefix_lut[opcode];
     Flags_t *flags = &registers.af.f;
     uint16_t next_pc = 0;
@@ -1495,7 +1510,7 @@ uint16_t GameBoy::process_prefix_instructions(uint16_t pc) {
 }
 
 uint8_t GameBoy::Disassemble(uint16_t pc) {
-    uint8_t opcode = buffer[pc];
+    uint8_t opcode = memory_read(pc);
     InstrInfo_t instr = instr_lut[opcode];
     uint16_t next_pc = 0;
     
