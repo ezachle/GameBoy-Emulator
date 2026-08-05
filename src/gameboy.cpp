@@ -30,10 +30,8 @@ GameBoy::~GameBoy() {
 }
 
 void GameBoy::Run() {
-    uint16_t *pc = &registers.pc;
-
-    while(*pc < 0xFFFF) {
-        *pc += Disassemble(*pc);
+    while(registers.pc < 0xFFFF) {
+        Disassemble();
     }
 }
 
@@ -83,15 +81,15 @@ uint8_t* GameBoy::get_dst_reg_u8(uint8_t opcode) {
     return nullptr;
 }
 
-#define CALL(new_pc)                                    \
-    next_pc = new_pc;                                   \
-    registers.pc += instr.length;                       \
-    PUSH_SP(registers.pc, buffer, registers.sp);        \
+#define CALL(new_pc)                                                \
+    jumping = true;                                                 \
+    PUSH_SP((registers.pc + instr->length), buffer, registers.sp);   \
+    registers.pc = new_pc;                                          \
 
 void GameBoy::memory_write(uint16_t addr, uint8_t data) {
     buffer[addr] = data;
 
-    if(addr == 0xFF02 && data == 0x81) {
+    if(addr == 0xFF02 && (data == 0x81 || data == 0x80)) {
         uint8_t c = buffer[0xFF01];
         putchar(c);
         fflush(stdout);
@@ -99,11 +97,9 @@ void GameBoy::memory_write(uint16_t addr, uint8_t data) {
     }
 }
 
-uint16_t GameBoy::process_instructions(uint16_t pc) {
+void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
     uint8_t opcode = memory_read(pc);
-    InstrInfo_t instr = instr_lut[opcode];
     Flags_t *flags = &registers.af.f;
-    uint16_t next_pc = 0;
 
     switch(opcode) {
         case 0x01:
@@ -381,17 +377,19 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
         case 0x18:
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
-                next_pc = pc + instr.length + relative_pc;
+                registers.pc = pc + instr->length + relative_pc;
+                jumping = true;
             }
             break;
         case 0x20:
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 if(!flags->z) {
-                    next_pc = pc + instr.length + relative_pc;
-                    instr.cycles = 12;
+                    registers.pc = pc + instr->length + relative_pc;
+                    jumping = true;
+                    instr->cycles = 12;
                 } else {
-                    instr.cycles = 8;
+                    instr->cycles = 8;
                 }
             }
             break;
@@ -399,10 +397,11 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 if(flags->z) {
-                    next_pc = pc + instr.length + relative_pc;
-                    instr.cycles = 12;
+                    registers.pc = pc + instr->length + relative_pc;
+                    jumping = true;
+                    instr->cycles = 12;
                 } else {
-                    instr.cycles = 8;
+                    instr->cycles = 8;
                 }
             }
             break;
@@ -410,10 +409,11 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 if(!flags->c) {
-                    next_pc = pc + instr.length + relative_pc;
-                    instr.cycles = 12;
+                    registers.pc = pc + instr->length + relative_pc;
+                    jumping = true;
+                    instr->cycles = 12;
                 } else {
-                    instr.cycles = 8;
+                    instr->cycles = 8;
                 }
             }
             break;
@@ -421,10 +421,11 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 if(flags->c) {
-                    next_pc = pc + instr.length + relative_pc;
-                    instr.cycles = 12;
+                    registers.pc = pc + instr->length + relative_pc;
+                    jumping = true;
+                    instr->cycles = 12;
                 } else {
-                    instr.cycles = 8;
+                    instr->cycles = 8;
                 }
             }
             break;
@@ -778,9 +779,9 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 if(!flags->z) {
                     CALL(GET_WORD(buffer, pc));
-                    instr.cycles = 24;
+                    instr->cycles = 24;
                 } else {
-                    instr.cycles = 12;
+                    instr->cycles = 12;
                 }
             }
             break;
@@ -788,9 +789,9 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 if(flags->z) {
                     CALL(GET_WORD(buffer, pc));
-                    instr.cycles = 24;
+                    instr->cycles = 24;
                 } else {
-                    instr.cycles = 12;
+                    instr->cycles = 12;
                 }
             }
             break;
@@ -798,9 +799,9 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 if(!flags->c) {
                     CALL(GET_WORD(buffer, pc));
-                    instr.cycles = 24;
+                    instr->cycles = 24;
                 } else {
-                    instr.cycles = 12;
+                    instr->cycles = 12;
                 }
             }
             break;
@@ -808,111 +809,122 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
             {
                 if(flags->c) {
                     CALL(GET_WORD(buffer, pc));
-                    instr.cycles = 24;
+                    instr->cycles = 24;
                 } else {
-                    instr.cycles = 12;
+                    instr->cycles = 12;
                 }
             }
             break;
         case 0xC9:
             {
-               POP_SP(next_pc, buffer, registers.sp); 
+               POP_SP(registers.pc, buffer, registers.sp); 
+               jumping = true;
             }
             break;
         case 0xD9:
             {
-               POP_SP(next_pc, buffer, registers.sp); 
+               POP_SP(registers.pc, buffer, registers.sp); 
+               jumping = true;
                enable_interrupt = true;
             }
             break;
         case 0xC0:
             {
                 if(!flags->z) {
-                    POP_SP(next_pc, buffer, registers.sp); 
-                    instr.cycles = 20;
+                    POP_SP(registers.pc, buffer, registers.sp); 
+                    jumping = true;
+                    instr->cycles = 20;
                 } else {
-                    instr.cycles = 8;
+                    instr->cycles = 8;
                 }
             }
             break;
         case 0xC8:
             {
                 if(flags->z) {
-                    POP_SP(next_pc, buffer, registers.sp); 
-                    instr.cycles = 20;
+                    POP_SP(registers.pc, buffer, registers.sp); 
+                    jumping = true;
+                    instr->cycles = 20;
                 } else {
-                    instr.cycles = 8;
+                    instr->cycles = 8;
                 }
             }
             break;
         case 0xD0:
             {
                 if(!flags->c) {
-                    POP_SP(next_pc, buffer, registers.sp); 
-                    instr.cycles = 20;
+                    POP_SP(registers.pc, buffer, registers.sp); 
+                    jumping = true;
+                    instr->cycles = 20;
                 } else {
-                    instr.cycles = 8;
+                    instr->cycles = 8;
                 }
             }
             break;
         case 0xD8:
             {
                 if(flags->c) {
-                    POP_SP(next_pc, buffer, registers.sp); 
-                    instr.cycles = 20;
+                    POP_SP(registers.pc, buffer, registers.sp); 
+                    jumping = true;
+                    instr->cycles = 20;
                 } else {
-                    instr.cycles = 8;
+                    instr->cycles = 8;
                 }
             }
             break;
         case 0xC2:
             {
                 if(!flags->z) {
-                    instr.cycles = 16;
-                    next_pc = GET_WORD(buffer, pc);
+                    instr->cycles = 16;
+                    registers.pc = GET_WORD(buffer, pc);
+                    jumping = true;
                 } else {
-                    instr.cycles = 12;
+                    instr->cycles = 12;
                 }
             }
             break;
         case 0xC3:
             {
-                next_pc = GET_WORD(buffer, pc);
+                registers.pc = GET_WORD(buffer, pc);
+                jumping = true;
             }
             break;
         case 0xCA:
             {
                 if(flags->z) {
-                    instr.cycles = 16;
-                    next_pc = GET_WORD(buffer, pc);
+                    instr->cycles = 16;
+                    registers.pc = GET_WORD(buffer, pc);
                 } else {
-                    instr.cycles = 12;
+                    instr->cycles = 12;
                 }
             }
             break;
         case 0xDA:
             {
                 if(flags->c) {
-                    instr.cycles = 16;
-                    next_pc = GET_WORD(buffer, pc);
+                    instr->cycles = 16;
+                    registers.pc = GET_WORD(buffer, pc);
+                    jumping = true;
                 } else {
-                    instr.cycles = 12;
+                    instr->cycles = 12;
                 }
             }
             break;
         case 0xD2:
             {
                 if(!flags->c) {
-                    instr.cycles = 16;
-                    next_pc = GET_WORD(buffer, pc);
+                    instr->cycles = 16;
+                    registers.pc = GET_WORD(buffer, pc);
+                    jumping = true;
                 } else {
-                    instr.cycles = 12;
+                    instr->cycles = 12;
                 }
             }
             break;
         case 0xE9:
             {
-                next_pc = registers.hl.raw;
+                registers.pc = registers.hl.raw;
+                jumping = true;
             }
             break;
         case 0xC1:
@@ -1135,20 +1147,20 @@ uint16_t GameBoy::process_instructions(uint16_t pc) {
         case 0x00:
             break;
         case 0xCB:
-            prefix_instr = true;
+            {
+                uint8_t cb_opcode = memory_read(pc + 1);
+                process_prefix_instructions(cb_opcode);
+                *instr = instr_prefix_lut[cb_opcode];
+            }
             break;
         default:
             std::cout << std::format("Unimplemented Instruction 0x{:02X}\n", opcode);
     }
-
-    return next_pc;
 }
 
-uint16_t GameBoy::process_prefix_instructions(uint16_t pc) {
-    uint8_t opcode = memory_read(pc);
+void GameBoy::process_prefix_instructions(uint8_t opcode) {
     InstrInfo_t instr = instr_prefix_lut[opcode];
     Flags_t *flags = &registers.af.f;
-    uint16_t next_pc = 0;
 
     switch(opcode) {
         case 0x00:
@@ -1505,21 +1517,15 @@ uint16_t GameBoy::process_prefix_instructions(uint16_t pc) {
         default:
             std::cout << std::format("Unimplemented Prefix Instruction 0x{:02X}\n", opcode);
     }
-
-    return next_pc;
 }
 
-uint8_t GameBoy::Disassemble(uint16_t pc) {
+void GameBoy::Disassemble() {
+    uint16_t pc = registers.pc;
     uint8_t opcode = memory_read(pc);
     InstrInfo_t instr = instr_lut[opcode];
-    uint16_t next_pc = 0;
     
-    if(prefix_instr) {
-        next_pc = process_prefix_instructions(pc);
-        prefix_instr = false;
-    } else {
-        next_pc = process_instructions(pc);
-    }
+    jumping = false;
+    process_instructions(pc, &instr);
 
     add_to_cycle(instr.cycles ? instr.cycles : 1);
 
@@ -1535,10 +1541,7 @@ uint8_t GameBoy::Disassemble(uint16_t pc) {
         buffer[0xFF02] = 0;
     }
 
-    if(next_pc) {
-        set_pc(next_pc);
-        return 0;
-    } else {
-        return instr.length ? instr.length : 1;
+    if(!jumping) {
+        registers.pc += instr.length;
     }
 }

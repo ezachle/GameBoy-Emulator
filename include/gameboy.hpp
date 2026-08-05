@@ -79,7 +79,7 @@ public:
     ~GameBoy();
     void Run();
 
-    uint8_t Disassemble(uint16_t pc);
+    void Disassemble();
 
     const Flags_t get_flags() { return registers.af.f; }
     const uint64_t get_cycles() { return tot_cycles; }
@@ -87,8 +87,8 @@ private:
     void set_pc(uint16_t pc) { registers.pc = pc; }
     void add_to_cycle(uint8_t inc) { tot_cycles += inc; }
 
-    uint16_t process_instructions(uint16_t pc);
-    uint16_t process_prefix_instructions(uint16_t pc);
+    void process_instructions(uint16_t pc, InstrInfo_t *instr);
+    void process_prefix_instructions(uint8_t opcode);
 
     void memory_write(uint16_t addr, uint8_t data);
     uint8_t memory_read(uint16_t addr) { return buffer[addr]; }
@@ -101,8 +101,8 @@ private:
 
     std::unique_ptr<uint8_t[]> buffer;
 
+    bool jumping = false;
     bool enable_interrupt = false;
-    bool prefix_instr = false;
 
     std::ifstream gb_file;
     uint64_t      gb_file_size;
