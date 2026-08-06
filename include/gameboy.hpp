@@ -91,7 +91,7 @@ private:
     void process_prefix_instructions(uint8_t opcode);
 
     void memory_write(uint16_t addr, uint8_t data);
-    uint8_t memory_read(uint16_t addr) { return buffer[addr]; }
+    uint8_t memory_read(uint16_t addr);
 
     uint8_t* get_src_reg_u8(uint8_t opcode);
     uint8_t* get_dst_reg_u8(uint8_t opcode);
