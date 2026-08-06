@@ -11,6 +11,7 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     stop
     */
     lut[0x00] = {"NOP", 1, 4};
+    lut[0x10] = {"STOP n8", 2, 4};
 
     lut[0x01] = {"LD BC, n16", 3, 12};
     lut[0x11] = {"LD DE, n16", 3, 12};
@@ -152,7 +153,7 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0x73] = {"LD [HL], E", 1, 8};
     lut[0x74] = {"LD [HL], H", 1, 8};
     lut[0x75] = {"LD [HL], L", 1, 8};
-    //lut[0x76] = {"HALT", 1, 4};
+    lut[0x75] = {"HALT", 1, 4};
     lut[0x77] = {"LD [HL], A", 1, 8};
 
     lut[0x78] = {"LD A, B", 1, 4};

@@ -103,6 +103,7 @@ private:
 
     bool jumping = false;
     bool enable_interrupt = false;
+    bool is_halted = false;
 
     std::ifstream gb_file;
     uint64_t      gb_file_size;
