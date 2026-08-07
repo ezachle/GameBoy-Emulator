@@ -1,5 +1,6 @@
 #pragma once
 
+#include <format>
 #include <string>
 #include <fstream>
 #include <cstdint>

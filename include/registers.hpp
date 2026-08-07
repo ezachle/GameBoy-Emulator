@@ -43,3 +43,5 @@ constexpr uint8_t SUB_FLAG        = (1 << 6); // used for BCD
 constexpr uint8_t HALF_CARRY_FLAG = (1 << 5); // used for BCD
 constexpr uint8_t CARRY_FLAG      = (1 << 4);
 
+typedef enum { REG_B = 0, REG_C, REG_D, REG_E, REG_H, REG_L, REG_HL, REG_A } regs_t;
+

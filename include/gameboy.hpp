@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "cartridge.hpp"
 #include "registers.hpp"
 #include "common.hpp"
 #include "opcode.hpp"
@@ -46,33 +47,22 @@ private:
     void memory_write(uint16_t addr, uint8_t data);
     uint8_t memory_read(uint16_t addr);
 
-    uint8_t* get_src_reg_u8(uint8_t opcode);
+    uint8_t get_byte(uint16_t addr);
+    uint16_t get_word(uint16_t addr);
+
+    uint16_t pop();
+    void push(uint16_t data);
+    void call(uint16_t addr);
+
+    uint8_t get_src_reg_u8(uint8_t opcode);
     uint8_t* get_dst_reg_u8(uint8_t opcode);
 
     Registers_t registers;
     uint64_t tot_cycles = 0;
 
-    std::unique_ptr<uint8_t[]> buffer;
-
+    Cartridge cart;
     bool jumping = false;
     bool enable_interrupt = false;
     bool is_halted = false;
-
-    std::ifstream gb_file;
-    uint64_t      gb_file_size;
-    std::string   file_name;
 };
-
-#define POP_SP(data, buffer, sp)                    \
-    do {                                            \
-        data = (buffer[sp+1] << 8) | buffer[sp];    \
-        sp += 2;                                    \
-    } while(0);                                     \
-
-#define PUSH_SP(data, buffer, sp)                   \
-    do {                                            \
-        sp -= 2;                                    \
-        memory_write(sp, data & 0xFF);              \
-        memory_write(sp + 1, (data >> 8) & 0xFF);   \
-    } while(0);                                     \
 
