@@ -4,12 +4,6 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     std::array<InstrInfo_t, 0x100> lut {};
 
     // Block 0
-    /*
-    ld, inc, dec, add,
-    rlca, rrca, rla, rra, daa, cpl, scf, ccf,
-    jr
-    stop
-    */
     lut[0x00] = {"NOP", 1, 4};
     lut[0x10] = {"STOP n8", 2, 4};
 
@@ -165,11 +159,7 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0x7E] = {"LD A, [HL]", 1, 8};
     lut[0x7F] = {"LD A, A", 1, 4};
 
-    /*
-    Block 2
-    add, adc, sub, sbc, and, xor, or, cp
-    Two byte instructions
-    */
+    // Block 2
     lut[0x80] = {"ADD A,B", 1, 4};
     lut[0x81] = {"ADD A,C", 1, 4};
     lut[0x82] = {"ADD A,D", 1, 4};
@@ -242,21 +232,7 @@ static std::array<InstrInfo_t, 0x100> init_lut() {
     lut[0xBE] = {"CP A,[HL]", 1, 8};
     lut[0xBF] = {"CP A,A", 1, 4};
 
-    /*
-    Block 3
-    add, adc, sub, sbc, and, xor, or, cp
-    ret, reti, jp, call, rst
-    pop, push
-    ldf
-    ld
-    ldh
-    add sp, imm8
-    ld hl, sp + imm8 
-    ld sp, hl
-    di
-    ei
-    0xCB take ntoe!!!!
-    */
+    // Block 3
     lut[0xCD] = {"CALL a16", 3, 24};
 
     lut[0xC4] = {"CALL NZ, a16", 3, 24};
