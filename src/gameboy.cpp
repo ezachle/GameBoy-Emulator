@@ -38,21 +38,21 @@ void GameBoy::Run() {
 uint8_t* GameBoy::get_src_reg_u8(uint8_t opcode) {
     switch(GET_SRC(opcode)) {
         case REG_B:
-            return &registers.bc.b;
+            return &registers.b;
         case REG_C:
-            return &registers.bc.c;
+            return &registers.c;
         case REG_D:
-            return &registers.de.d;
+            return &registers.d;
         case REG_E:
-            return &registers.de.e;
+            return &registers.e;
         case REG_H:
-            return &registers.hl.h;
+            return &registers.h;
         case REG_L:
-            return &registers.hl.l;
+            return &registers.l;
         case REG_X:
-            return &buffer[registers.hl.raw];
+            return &buffer[registers.hl];
         case REG_A:
-            return &registers.af.a;
+            return &registers.a;
     };
 
     return nullptr;
@@ -61,21 +61,21 @@ uint8_t* GameBoy::get_src_reg_u8(uint8_t opcode) {
 uint8_t* GameBoy::get_dst_reg_u8(uint8_t opcode) {
     switch(GET_DST(opcode)) {
         case REG_B:
-            return &registers.bc.b;
+            return &registers.b;
         case REG_C:
-            return &registers.bc.c;
+            return &registers.c;
         case REG_D:
-            return &registers.de.d;
+            return &registers.d;
         case REG_E:
-            return &registers.de.e;
+            return &registers.e;
         case REG_H:
-            return &registers.hl.h;
+            return &registers.h;
         case REG_L:
-            return &registers.hl.l;
+            return &registers.l;
         case REG_X:
-            return &buffer[registers.hl.raw];
+            return &buffer[registers.hl];
         case REG_A:
-            return &registers.af.a;
+            return &registers.a;
     };
 
     return nullptr;
@@ -106,7 +106,6 @@ uint8_t GameBoy::memory_read(uint16_t addr) {
 
 void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
     uint8_t opcode = memory_read(pc);
-    Flags_t *flags = &registers.af.f;
 
     switch(opcode) {
         case 0x01:
@@ -118,15 +117,15 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        dst = &registers.bc.raw;
+                        dst = &registers.bc;
                         break;
                     case REG_D:
                     case REG_E:
-                        dst = &registers.de.raw;
+                        dst = &registers.de;
                         break;
                     case REG_H:
                     case REG_L:
-                        dst = &registers.hl.raw;
+                        dst = &registers.hl;
                         break;
                     case REG_X:
                     case REG_A:
@@ -146,25 +145,25 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        dst = registers.bc.raw;
+                        dst = registers.bc;
                         break;
                     case REG_D:
                     case REG_E:
-                        dst = registers.de.raw;
+                        dst = registers.de;
                         break;
                     case REG_H:
                     case REG_L:
-                        dst = registers.hl.raw;
-                        registers.hl.raw++;
+                        dst = registers.hl;
+                        registers.hl++;
                         break;
                     case REG_X:
                     case REG_A:
-                        dst = registers.hl.raw;
-                        registers.hl.raw--;
+                        dst = registers.hl;
+                        registers.hl--;
                         break;
                 };
                 
-                memory_write(dst, registers.af.a);
+                memory_write(dst, registers.a);
             }
             break;
         case 0x06:
@@ -177,19 +176,19 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        dst = &registers.bc.b;
+                        dst = &registers.b;
                         break;
                     case REG_D:
                     case REG_E:
-                        dst = &registers.de.d;
+                        dst = &registers.d;
                         break;
                     case REG_H:
                     case REG_L:
-                        dst = &registers.hl.h;
+                        dst = &registers.h;
                         break;
                     case REG_X:
                     case REG_A:
-                        memory_write(registers.hl.raw, data);
+                        memory_write(registers.hl, data);
                         break;
                 };
                 
@@ -214,25 +213,25 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        dst = registers.bc.raw;
+                        dst = registers.bc;
                         break;
                     case REG_D:
                     case REG_E:
-                        dst = registers.de.raw;
+                        dst = registers.de;
                         break;
                     case REG_H:
                     case REG_L:
-                        dst = registers.hl.raw;
-                        registers.hl.raw++;
+                        dst = registers.hl;
+                        registers.hl++;
                         break;
                     case REG_X:
                     case REG_A:
-                        dst = registers.hl.raw;
-                        registers.hl.raw--;
+                        dst = registers.hl;
+                        registers.hl--;
                         break;
                 };
                 
-                registers.af.a = memory_read(dst);
+                registers.a = memory_read(dst);
             }
             break;
         case 0x0E:
@@ -244,19 +243,19 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        dst = &registers.bc.c;
+                        dst = &registers.c;
                         break;
                     case REG_D:
                     case REG_E:
-                        dst = &registers.de.e;
+                        dst = &registers.e;
                         break;
                     case REG_H:
                     case REG_L:
-                        dst = &registers.hl.l;
+                        dst = &registers.l;
                         break;
                     case REG_X:
                     case REG_A:
-                        dst = &registers.af.a;
+                        dst = &registers.a;
                         break;
                 };
 
@@ -272,15 +271,15 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        reg = &registers.bc.raw;
+                        reg = &registers.bc;
                         break;
                     case REG_D:
                     case REG_E:
-                        reg = &registers.de.raw;
+                        reg = &registers.de;
                         break;
                     case REG_H:
                     case REG_L:
-                        reg = &registers.hl.raw;
+                        reg = &registers.hl;
                         break;
                     case REG_X:
                     case REG_A:
@@ -303,9 +302,9 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 uint8_t *reg = get_dst_reg_u8(opcode);
                 uint8_t result = *reg + 1;
 
-                flags->h = ((*reg & 0x0F) + (1 & 0x0F)) > 0x0F;
-                flags->z = (result == 0);
-                flags->n = 0;
+                set_flag(result == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(((*reg & 0x0F) + (1 & 0x0F)) > 0x0F, HALF_CARRY_FLAG);
 
                 *reg = result;
             }
@@ -319,15 +318,15 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        reg = &registers.bc.raw;
+                        reg = &registers.bc;
                         break;
                     case REG_D:
                     case REG_E:
-                        reg = &registers.de.raw;
+                        reg = &registers.de;
                         break;
                     case REG_H:
                     case REG_L:
-                        reg = &registers.hl.raw;
+                        reg = &registers.hl;
                         break;
                     case REG_X:
                     case REG_A:
@@ -350,9 +349,9 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 uint8_t *reg = get_dst_reg_u8(opcode);
                 uint8_t result = *reg - 1;
 
-                flags->h = ((*reg & 0x0F) - (1 & 0x0F)) < 0;
-                flags->z = (result == 0) ? 1 : 0;
-                flags->n = 1;
+                set_flag(result == 0, ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag(((*reg & 0x0F) - (1 & 0x0F)) < 0, HALF_CARRY_FLAG);
 
                 *reg = result;
             }
@@ -366,15 +365,15 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        reg = &registers.bc.raw;
+                        reg = &registers.bc;
                         break;
                     case REG_D:
                     case REG_E:
-                        reg = &registers.de.raw;
+                        reg = &registers.de;
                         break;
                     case REG_H:
                     case REG_L:
-                        reg = &registers.hl.raw;
+                        reg = &registers.hl;
                         break;
                     case REG_X:
                     case REG_A:
@@ -382,12 +381,12 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                         break;
                 };
 
-                uint32_t result = *reg + registers.hl.raw;
-                flags->h = ((registers.hl.raw & 0xFFF) + (*reg & 0xFFF)) > 0xFFF;
-                flags->c = result > 0xFFFF;
-                flags->n = 0;
+                uint32_t result = *reg + registers.hl;
+                set_flag(0, SUB_FLAG);
+                set_flag(((registers.hl & 0xFFF) + (*reg & 0xFFF)) > 0xFFF, HALF_CARRY_FLAG);
+                set_flag(result > 0xFFFF, CARRY_FLAG);
 
-                registers.hl.raw = result;
+                registers.hl = result;
             }
             break;
         case 0x18:
@@ -400,7 +399,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0x20:
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
-                if(!flags->z) {
+                if(!get_flag(ZERO_FLAG)) {
                     registers.pc = pc + instr->length + relative_pc;
                     jumping = true;
                     instr->cycles = 12;
@@ -412,7 +411,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0x28:
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
-                if(flags->z) {
+                if(get_flag(ZERO_FLAG)) {
                     registers.pc = pc + instr->length + relative_pc;
                     jumping = true;
                     instr->cycles = 12;
@@ -424,7 +423,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0x30:
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
-                if(!flags->c) {
+                if(!get_flag(CARRY_FLAG)) {
                     registers.pc = pc + instr->length + relative_pc;
                     jumping = true;
                     instr->cycles = 12;
@@ -436,7 +435,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0x38:
             {
                 int8_t relative_pc = static_cast<int8_t>(GET_BYTE(buffer, pc));
-                if(flags->c) {
+                if(get_flag(CARRY_FLAG)) {
                     registers.pc = pc + instr->length + relative_pc;
                     jumping = true;
                     instr->cycles = 12;
@@ -447,93 +446,93 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0x07:
             {
-                uint8_t b7 = (registers.af.a >> 7);
-                registers.af.a = (registers.af.a << 1) | b7;
+                uint8_t b7 = (registers.a >> 7);
+                registers.a = (registers.a << 1) | b7;
 
-                flags->z = 0;
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = b7;
+                set_flag(0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b7, CARRY_FLAG);
             }
             break;
         case 0x17:
             {
-                uint8_t carry = flags->c;
-                uint8_t b7 = (registers.af.a >> 7);
-                registers.af.a = (registers.af.a << 1) | carry;
+                uint8_t carry = get_flag(CARRY_FLAG);
+                uint8_t b7 = (registers.a >> 7);
+                registers.a = (registers.a << 1) | carry;
 
-                flags->z = 0;
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = b7;
+                set_flag(0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b7, CARRY_FLAG);
             }
             break;
         case 0x0F:
             {
-                uint8_t b0 = registers.af.a & 1; 
-                registers.af.a = (registers.af.a >> 1) | (b0 << 7);
+                uint8_t b0 = registers.a & 1; 
+                registers.a = (registers.a >> 1) | (b0 << 7);
 
-                flags->z = 0;
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = b0;
+                set_flag(0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b0, CARRY_FLAG);
             }
             break;
         case 0x1F:
             {
-                uint8_t carry = flags->c;
-                uint8_t b0 = registers.af.a & 1;
-                registers.af.a = (registers.af.a >> 1) | (carry << 7);
+                uint8_t carry = get_flag(CARRY_FLAG);
+                uint8_t b0 = registers.a & 1;
+                registers.a = (registers.a >> 1) | (carry << 7);
 
-                flags->z = 0;
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = b0;
+                set_flag(0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b0, CARRY_FLAG);
             }
             break;
         case 0x27:
             {
                 // needs to be tested
-                uint8_t old_cf = flags->c;
-                uint8_t old_hf = flags->h;
+                uint8_t old_hf = get_flag(HALF_CARRY_FLAG);
+                uint8_t old_cf = get_flag(CARRY_FLAG);
                 uint16_t offset = 0;
-                if((flags->n == 0 && (registers.af.a & 0x0F) > 0x9) || old_hf) {
+                if((get_flag(SUB_FLAG) == 0 && (registers.a & 0x0F) > 0x9) || old_hf) {
                     offset |= 0x6;
                 }
 
-                if((flags->n == 0 && (registers.af.a & 0xFF) > 0x99) || old_cf) {
+                if((get_flag(SUB_FLAG) == 0 && (registers.a & 0xFF) > 0x99) || old_cf) {
                     offset |= 0x60;
-                    flags->c = 1;
+                    set_flag(1, CARRY_FLAG);
                 }
 
-                if(flags->n == 0)
-                    registers.af.a += offset;
+                if(get_flag(SUB_FLAG) == 0)
+                    registers.a += offset;
                 else
-                    registers.af.a -= offset;
+                    registers.a -= offset;
 
-                flags->h = 0;
-                flags->z = (registers.af.a == 0);
+                set_flag((registers.a == 0), ZERO_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
             }
             break;
         case 0x37:
             {
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = 1;
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(1, CARRY_FLAG);
             }
             break;
         case 0x2F:
             {
-                registers.af.a = ~registers.af.a;
-                flags->n = 1;
-                flags->h = 1;
+                registers.a = ~registers.a;
+                set_flag(1, SUB_FLAG);
+                set_flag(1, HALF_CARRY_FLAG);
             }
             break;
         case 0x3F:
             {
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = ~flags->c;
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(get_flag(CARRY_FLAG) == 0, CARRY_FLAG);
             }
             break;
         case 0x40:
@@ -616,14 +615,14 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0x87:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                uint16_t result = registers.af.a + *src;
+                uint16_t result = registers.a + *src;
 
-                flags->h = ((registers.af.a & 0x0F) + (*src & 0x0F)) > 0x0F;
-                flags->c = result > 0xFF;
-                flags->z = (result & 0xFF) == 0;
-                flags->n = 0;
+                set_flag((result & 0xFF) == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(((registers.a & 0x0F) + (*src & 0x0F)) > 0x0F, HALF_CARRY_FLAG);
+                set_flag(result > 0xFF, CARRY_FLAG);
 
-                registers.af.a = result;
+                registers.a = result;
             }
             break;
         case 0x88:
@@ -636,14 +635,15 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0x8F:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                uint8_t old_cf = flags->c;
-                uint16_t result = registers.af.a + *src + old_cf;
-                flags->h = ((registers.af.a & 0x0F) + (*src & 0x0F) + (flags->c)) > 0x0F;
-                flags->c = result > 0xFF;
-                flags->z = (result & 0xFF) == 0;
-                flags->n = 0;
+                uint8_t old_cf = get_flag(CARRY_FLAG);
+                uint16_t result = registers.a + *src + old_cf;
 
-                registers.af.a = result;
+                set_flag((result & 0xFF) == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(((registers.a & 0x0F) + (*src & 0x0F) + old_cf) > 0x0F, HALF_CARRY_FLAG);
+                set_flag(result > 0xFF, CARRY_FLAG);
+
+                registers.a = result;
             }
             break;
         case 0x90:
@@ -655,21 +655,22 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0x96:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                flags->h = ((registers.af.a & 0x0F) < (*src & 0x0F));
-                flags->c = registers.af.a < *src;
-                flags->z = ((registers.af.a - *src) == 0) ? 1 : 0;
-                flags->n = 1;
 
-                registers.af.a -= *src;
+                set_flag((registers.a - *src) == 0 , ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag((registers.a & 0x0F) < (*src & 0x0F), HALF_CARRY_FLAG);
+                set_flag(registers.a < *src, CARRY_FLAG);
+
+                registers.a -= *src;
             }
             break;
         case 0x97:
             {
-                flags->z = 1;
-                flags->n = 1;
-                flags->h = 0;
-                flags->c = 0;
-                registers.af.a -= registers.af.a;
+                set_flag(1 , ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
+                registers.a -= registers.a;
             }
             break;
         case 0x98:
@@ -681,26 +682,27 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0x9E:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                uint8_t old_cf = flags->c;
-                uint16_t result = registers.af.a - *src - old_cf;
+                uint8_t old_cf = get_flag(CARRY_FLAG);
+                uint16_t result = registers.a - *src - old_cf;
 
-                flags->z = (result & 0xFF) == 0;
-                flags->n = 1;
-                flags->h = ((registers.af.a & 0x0F) - (*src & 0x0F) - old_cf) < 0;
-                flags->c = registers.af.a < (*src + old_cf);
+                set_flag((result & 0xFF) == 0 , ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag(((registers.a & 0x0F) - (*src & 0x0F) - old_cf) < 0, HALF_CARRY_FLAG);
+                set_flag(result > 0xFF, CARRY_FLAG);
 
-                registers.af.a = static_cast<uint8_t>(result);
+                registers.a = static_cast<uint8_t>(result);
             }
             break;
         case 0x9F:
             {
-                uint16_t result = registers.af.a - registers.af.a - flags->c;
+                uint8_t old_cf = get_flag(CARRY_FLAG);
+                uint16_t result = registers.a - registers.a - old_cf;
 
-                flags->z = ((result & 0xFF) == 0) ? 1 : 0;
-                flags->n = 1;
-                flags->h = ((registers.af.a & 0x0F) - (registers.af.a & 0x0F) - flags->c) < 0;
+                set_flag((result & 0xFF) == 0, ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag(((registers.a & 0x0F) - (registers.a & 0x0F) - old_cf) < 0, HALF_CARRY_FLAG);
 
-                registers.af.a = static_cast<uint8_t>(result);
+                registers.a = static_cast<uint8_t>(result);
             }
             break;
         case 0xA0:
@@ -713,13 +715,14 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0xA7:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                uint8_t result = registers.af.a & (*src);
-                flags->h = 1;
-                flags->c = 0;
-                flags->z = (result == 0) ? 1 : 0;
-                flags->n = 0;
+                uint8_t result = registers.a & (*src);
 
-                registers.af.a = result;
+                set_flag(result == 0 , ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(1, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
+
+                registers.a = result;
             }
             break;
         case 0xA8:
@@ -731,23 +734,24 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0xAE:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                uint8_t result = registers.af.a ^ (*src);
-                flags->h = 0;
-                flags->c = 0;
-                flags->z = (result == 0) ? 1 : 0;
-                flags->n = 0;
+                uint8_t result = registers.a ^ (*src);
 
-                registers.af.a = result;
+                set_flag(result == 0 , ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
+
+                registers.a = result;
             }
             break;
         case 0xAF:
             {
-                flags->z = 1;
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = 0;
+                set_flag(1 , ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
 
-                registers.af.a ^= registers.af.a;
+                registers.a ^= registers.a;
             }
             break;
         case 0xB0:
@@ -760,13 +764,13 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0xB7:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                uint8_t result = registers.af.a | (*src);
-                flags->h = 0;
-                flags->c = 0;
-                flags->z = (result == 0) ? 1 : 0;
-                flags->n = 0;
+                uint8_t result = registers.a | (*src);
+                set_flag(result == 0 , ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
 
-                registers.af.a = result;
+                registers.a = result;
             }
             break;
         case 0xB8:
@@ -778,18 +782,18 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0xBE:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                flags->h = ((registers.af.a & 0x0F) < (*src & 0x0F));
-                flags->c = registers.af.a < *src;
-                flags->z = ((registers.af.a - *src) == 0) ? 1 : 0;
-                flags->n = 1;
+                set_flag((registers.a - *src) == 0 , ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag(((registers.a & 0x0F) < (*src & 0x0F)), HALF_CARRY_FLAG);
+                set_flag(registers.a < *src, CARRY_FLAG);
             }
             break;
         case 0xBF:
             {
-                flags->z = 1;
-                flags->n = 1;
-                flags->h = 0;
-                flags->c = 0;
+                set_flag(1, ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
             }
             break;
         case 0xCD:
@@ -799,7 +803,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xC4:
             {
-                if(!flags->z) {
+                if(!get_flag(ZERO_FLAG)) {
                     CALL(GET_WORD(buffer, pc));
                     instr->cycles = 24;
                 } else {
@@ -809,7 +813,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xCC:
             {
-                if(flags->z) {
+                if(get_flag(ZERO_FLAG)) {
                     CALL(GET_WORD(buffer, pc));
                     instr->cycles = 24;
                 } else {
@@ -819,7 +823,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xD4:
             {
-                if(!flags->c) {
+                if(!get_flag(CARRY_FLAG)) {
                     CALL(GET_WORD(buffer, pc));
                     instr->cycles = 24;
                 } else {
@@ -829,7 +833,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xDC:
             {
-                if(flags->c) {
+                if(get_flag(CARRY_FLAG)) {
                     CALL(GET_WORD(buffer, pc));
                     instr->cycles = 24;
                 } else {
@@ -852,7 +856,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xC0:
             {
-                if(!flags->z) {
+                if(!get_flag(ZERO_FLAG)) {
                     POP_SP(registers.pc, buffer, registers.sp); 
                     jumping = true;
                     instr->cycles = 20;
@@ -863,7 +867,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xC8:
             {
-                if(flags->z) {
+                if(get_flag(ZERO_FLAG)) {
                     POP_SP(registers.pc, buffer, registers.sp); 
                     jumping = true;
                     instr->cycles = 20;
@@ -874,7 +878,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xD0:
             {
-                if(!flags->c) {
+                if(!get_flag(CARRY_FLAG)) {
                     POP_SP(registers.pc, buffer, registers.sp); 
                     jumping = true;
                     instr->cycles = 20;
@@ -885,7 +889,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xD8:
             {
-                if(flags->c) {
+                if(get_flag(CARRY_FLAG)) {
                     POP_SP(registers.pc, buffer, registers.sp); 
                     jumping = true;
                     instr->cycles = 20;
@@ -896,7 +900,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xC2:
             {
-                if(!flags->z) {
+                if(!get_flag(ZERO_FLAG)) {
                     instr->cycles = 16;
                     registers.pc = GET_WORD(buffer, pc);
                     jumping = true;
@@ -913,7 +917,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xCA:
             {
-                if(flags->z) {
+                if(get_flag(ZERO_FLAG)) {
                     instr->cycles = 16;
                     jumping = true;
                     registers.pc = GET_WORD(buffer, pc);
@@ -924,7 +928,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xDA:
             {
-                if(flags->c) {
+                if(get_flag(CARRY_FLAG)) {
                     instr->cycles = 16;
                     registers.pc = GET_WORD(buffer, pc);
                     jumping = true;
@@ -935,7 +939,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xD2:
             {
-                if(!flags->c) {
+                if(!get_flag(CARRY_FLAG)) {
                     instr->cycles = 16;
                     registers.pc = GET_WORD(buffer, pc);
                     jumping = true;
@@ -946,7 +950,7 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
             break;
         case 0xE9:
             {
-                registers.pc = registers.hl.raw;
+                registers.pc = registers.hl;
                 jumping = true;
             }
             break;
@@ -959,25 +963,25 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        reg = &registers.bc.raw;
+                        reg = &registers.bc;
                         break;
                     case REG_D:
                     case REG_E:
-                        reg = &registers.de.raw;
+                        reg = &registers.de;
                         break;
                     case REG_H:
                     case REG_L:
-                        reg = &registers.hl.raw;
+                        reg = &registers.hl;
                         break;
                     case REG_X:
                     case REG_A:
-                        reg = &registers.af.raw;
+                        reg = &registers.af;
                         break;
                 };
 
                 POP_SP(*reg, buffer, registers.sp);
 
-                if(reg == &registers.af.raw)
+                if(reg == &registers.af)
                    *reg &= 0xFFF0;
             }
             break;
@@ -990,23 +994,23 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 switch(GET_DST(opcode)) {
                     case REG_B:
                     case REG_C:
-                        reg = &registers.bc.raw;
+                        reg = &registers.bc;
                         break;
                     case REG_D:
                     case REG_E:
-                        reg = &registers.de.raw;
+                        reg = &registers.de;
                         break;
                     case REG_H:
                     case REG_L:
-                        reg = &registers.hl.raw;
+                        reg = &registers.hl;
                         break;
                     case REG_X:
                     case REG_A:
-                        reg = &registers.af.raw;
+                        reg = &registers.af;
                         break;
                 };
 
-                if(reg == &registers.af.raw)
+                if(reg == &registers.af)
                     *reg &= 0xFFF0;
 
                 PUSH_SP(*reg, buffer, registers.sp);
@@ -1015,124 +1019,124 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0xE0:
             {
                 uint8_t offset = memory_read(pc+1);
-                memory_write(0xFF00 + offset, registers.af.a);
+                memory_write(0xFF00 + offset, registers.a);
             }
             break;
         case 0xE2:
             {
-                memory_write(0xFF00 + registers.bc.c, registers.af.a);
+                memory_write(0xFF00 + registers.c, registers.a);
             }
             break;
         case 0xF0:
             {
                 uint8_t offset = memory_read(pc + 1);
-                registers.af.a = memory_read(0xFF00 + offset);
+                registers.a = memory_read(0xFF00 + offset);
             }
             break;
         case 0xF2:
             {
-                registers.af.a = memory_read(0xFF00 + registers.bc.c);
+                registers.a = memory_read(0xFF00 + registers.c);
             }
             break;
         case 0xEA:
             {
                 uint16_t addr = GET_WORD(buffer, pc);
-                memory_write(addr, registers.af.a);
+                memory_write(addr, registers.a);
             }
             break;
         case 0xFA:
             {
                 uint16_t addr = GET_WORD(buffer, pc);
-                registers.af.a = memory_read(addr);
+                registers.a = memory_read(addr);
             }
             break;
         case 0xC6:
             {
                 uint8_t byte = GET_BYTE(buffer, pc);
-                uint16_t result = registers.af.a + byte;
-                flags->z = (result & 0xFF) == 0;
-                flags->n = 0;
-                flags->h = ((registers.af.a & 0x0F) + (byte & 0x0F)) > 0xF;
-                flags->c = (result > 0xFF);
-                registers.af.a = result;
+                uint16_t result = registers.a + byte;
+                set_flag((result & 0xFF) == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(((registers.a & 0x0F) + (byte & 0x0F)) > 0xF, HALF_CARRY_FLAG);
+                set_flag(result > 0xFF, CARRY_FLAG);
+                registers.a = result;
             }
             break;
         case 0xD6:
             {
                 uint8_t byte = GET_BYTE(buffer, pc);
-                flags->h = ((registers.af.a & 0x0F) < (byte & 0x0F));
-                flags->c = registers.af.a < byte;
-                flags->z = ((registers.af.a - byte) == 0) ? 1 : 0;
-                flags->n = 1;
-                registers.af.a -= byte;
+                set_flag(((registers.a - byte) == 0), ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag((registers.a & 0x0F) < (byte & 0x0F), HALF_CARRY_FLAG);
+                set_flag(registers.a < byte, CARRY_FLAG);
+                registers.a -= byte;
             }
             break;
         case 0xE6:
             {
-                uint8_t result = registers.af.a & GET_BYTE(buffer, pc);
-                flags->h = 1;
-                flags->c = 0;
-                flags->z = (result == 0) ? 1 : 0;
-                flags->n = 0;
+                uint8_t result = registers.a & GET_BYTE(buffer, pc);
+                set_flag(result == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(1, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
 
-                registers.af.a = result;
+                registers.a = result;
             }
             break;
         case 0xF6:
             {
-                uint8_t result = registers.af.a | GET_BYTE(buffer, pc);
-                flags->h = 0;
-                flags->c = 0;
-                flags->z = (result == 0) ? 1 : 0;
-                flags->n = 0;
-                registers.af.a = result;
+                uint8_t result = registers.a | GET_BYTE(buffer, pc);
+                set_flag(result == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
+                registers.a = result;
             }
             break;
         case 0xCE:
             {
                 uint8_t byte = GET_BYTE(buffer, pc);
-                uint8_t old_cf = flags->c;
-                uint16_t result = registers.af.a + byte + old_cf;
+                uint8_t old_cf = get_flag(CARRY_FLAG);
+                uint16_t result = registers.a + byte + old_cf;
 
-                flags->z = (result & 0xFF) == 0;
-                flags->n = 0;
-                flags->h = ((registers.af.a & 0x0F) + (byte & 0x0F) + old_cf) > 0x0F;
-                flags->c = ((registers.af.a & 0xFF) + (byte & 0xFF) + old_cf) > 0xFF;
+                set_flag((result & 0xFF) == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(((registers.a & 0x0F) + (byte & 0x0F) + old_cf) > 0x0F, HALF_CARRY_FLAG);
+                set_flag(((registers.a & 0xFF) + (byte & 0xFF) + old_cf) > 0xFF, CARRY_FLAG);
 
-                registers.af.a = static_cast<uint8_t>(result);
+                registers.a = static_cast<uint8_t>(result);
             }
             break;
         case 0xDE:
             {
                 uint8_t byte = GET_BYTE(buffer, pc);
-                uint16_t result = registers.af.a - byte - flags->c;
+                uint16_t result = registers.a - byte - get_flag(CARRY_FLAG);
 
-                flags->z = ((result & 0xFF) == 0) ? 1 : 0;
-                flags->n = 1;
-                flags->h = ((registers.af.a & 0x0F) - (byte & 0x0F) - flags->c) < 0;
-                flags->c = result < 0;
+                set_flag((result & 0xFF) == 0, ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag(((registers.a & 0x0F) - (byte & 0x0F) - get_flag(CARRY_FLAG)) < 0, HALF_CARRY_FLAG);
+                set_flag(result < 0, CARRY_FLAG);
 
-                registers.af.a = static_cast<uint8_t>(result);
+                registers.a = static_cast<uint8_t>(result);
             }
             break;
         case 0xEE:
             {
-                uint8_t result = registers.af.a ^ GET_BYTE(buffer, pc);
-                flags->h = 0;
-                flags->c = 0;
-                flags->z = (result == 0) ? 1 : 0;
-                flags->n = 0;
+                uint8_t result = registers.a ^ GET_BYTE(buffer, pc);
+                set_flag(result == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
 
-                registers.af.a = result;
+                registers.a = result;
             }
             break;
         case 0xFE:
             {
                 uint8_t byte = GET_BYTE(buffer, pc);
-                flags->h = ((registers.af.a & 0x0F) < (byte & 0x0F));
-                flags->c = registers.af.a < byte;
-                flags->z = ((registers.af.a - byte) == 0) ? 1 : 0;
-                flags->n = 1;
+                set_flag((registers.a - byte) == 0, ZERO_FLAG);
+                set_flag(1, SUB_FLAG);
+                set_flag((registers.a & 0x0F) < (byte & 0x0F), HALF_CARRY_FLAG);
+                set_flag(registers.a < byte, CARRY_FLAG);
             }
             break;
         case 0xE8:
@@ -1140,10 +1144,10 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
                 int8_t byte = static_cast<int8_t>(GET_BYTE(buffer, pc));
                 uint16_t result = registers.sp + byte;
 
-                flags->z = 0;
-                flags->n = 0;
-                flags->h = ((registers.sp & 0x0F) + (byte & 0x0F)) > 0x0F;
-                flags->c = ((registers.sp & 0xFF) + (byte & 0xFF)) > 0xFF;
+                set_flag(0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(((registers.sp & 0x0F) + (byte & 0x0F)) > 0x0F, HALF_CARRY_FLAG);
+                set_flag(((registers.sp & 0xFF) + (byte & 0xFF)) > 0xFF, CARRY_FLAG);
 
                 registers.sp = result;
             }
@@ -1151,16 +1155,16 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
         case 0xF8:
             {
                 int8_t signed_byte = static_cast<int8_t>(GET_BYTE(buffer, pc));
-                flags->c = ((registers.sp & 0xFF) + (signed_byte & 0xFF)) > 0xFF;
-                flags->h = ((registers.sp & 0x0F) + (signed_byte & 0x0F)) > 0x0F;
-                registers.hl.raw = registers.sp + signed_byte;
-                flags->z = 0;
-                flags->n = 0;
+                set_flag(0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(((registers.sp & 0x0F) + (signed_byte & 0x0F)) > 0x0F, HALF_CARRY_FLAG);
+                set_flag(((registers.sp & 0xFF) + (signed_byte & 0xFF)) > 0xFF, CARRY_FLAG);
+                registers.hl = registers.sp + signed_byte;
             }
             break;
         case 0xF9:
             {
-                registers.sp = registers.hl.raw;
+                registers.sp = registers.hl;
             }
             break;
         case 0xC7:
@@ -1203,7 +1207,6 @@ void GameBoy::process_instructions(uint16_t pc, InstrInfo_t *instr) {
 
 void GameBoy::process_prefix_instructions(uint8_t opcode) {
     InstrInfo_t instr = instr_prefix_lut[opcode];
-    Flags_t *flags = &registers.af.f;
 
     switch(opcode) {
         case 0x00:
@@ -1219,10 +1222,10 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
                 uint8_t b7 = (*src >> 7);
                 *src = (*src << 1) | b7;
 
-                registers.af.f.z = (*src == 0);
-                registers.af.f.n = 0;
-                registers.af.f.h = 0;
-                registers.af.f.c = b7;
+                set_flag(*src == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b7, CARRY_FLAG);
             }
             break;
         case 0x08:
@@ -1238,10 +1241,10 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
                 uint8_t b0 = *src & 1; 
                 *src = (*src >> 1) | (b0 << 7);
 
-                registers.af.f.z = (*src == 0);
-                registers.af.f.n = 0;
-                registers.af.f.h = 0;
-                registers.af.f.c = b0;
+                set_flag(*src == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b0, CARRY_FLAG);
             }
             break;
         case 0x10:
@@ -1254,14 +1257,14 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
         case 0x17:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                uint8_t carry = flags->c;
+                uint8_t carry = get_flag(CARRY_FLAG);
                 uint8_t b7 = (*src >> 7);
                 *src = (*src << 1) | carry;
 
-                registers.af.f.z = (*src == 0);
-                registers.af.f.n = 0;
-                registers.af.f.h = 0;
-                registers.af.f.c = b7;
+                set_flag(*src == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b7, CARRY_FLAG);
             }
             break;
         case 0x18:
@@ -1274,14 +1277,14 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
         case 0x1F:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                uint8_t old_cf = flags->c;
+                uint8_t old_cf = get_flag(CARRY_FLAG);
                 uint8_t b0 = *src & 1; 
                 *src = (*src >> 1) | (old_cf << 7);
 
-                registers.af.f.z = (*src == 0);
-                registers.af.f.n = 0;
-                registers.af.f.h = 0;
-                registers.af.f.c = b0;
+                set_flag(*src == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b0, CARRY_FLAG);
             }
             break;
         case 0x20:
@@ -1297,10 +1300,10 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
                 uint8_t b7 = (*src >> 7);
                 *src <<= 1;
 
-                registers.af.f.z = (*src == 0);
-                registers.af.f.n = 0;
-                registers.af.f.h = 0;
-                flags->c = b7;
+                set_flag(*src == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b7, CARRY_FLAG);
             }
             break;
         case 0x28:
@@ -1316,10 +1319,10 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
                 uint8_t b0 = (*src & 0x1);
                 *src = (*src >> 1) | (*src & 0x80);
 
-                flags->z = (*src == 0);
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = b0;
+                set_flag(*src == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b0, CARRY_FLAG);
             }
             break;
         case 0x30:
@@ -1334,10 +1337,11 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
                 uint8_t *src = get_src_reg_u8(opcode);
                 *src = (*src >> 4) | (*src << 4);
 
-                flags->z = (*src == 0);
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = 0;
+
+                set_flag(*src == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(0, CARRY_FLAG);
             }
             break;
         case 0x38:
@@ -1353,10 +1357,10 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
                 uint8_t b0 = (*src & 0x1);
                 *src = (*src >> 1) & ~(1 << 7);
 
-                flags->z = (*src == 0);
-                flags->n = 0;
-                flags->h = 0;
-                flags->c = b0;
+                set_flag(*src == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(0, HALF_CARRY_FLAG);
+                set_flag(b0, CARRY_FLAG);
             }
             break;
         case 0x40:
@@ -1425,9 +1429,9 @@ void GameBoy::process_prefix_instructions(uint8_t opcode) {
         case 0x7F:
             {
                 uint8_t *src = get_src_reg_u8(opcode);
-                flags->z = ((*src >> GET_DST(opcode)) & 0x1) == 0;
-                flags->n = 0;
-                flags->h = 1;
+                set_flag(((*src >> GET_DST(opcode)) & 0x1) == 0, ZERO_FLAG);
+                set_flag(0, SUB_FLAG);
+                set_flag(1, HALF_CARRY_FLAG);
             }
             break;
         case 0x80:

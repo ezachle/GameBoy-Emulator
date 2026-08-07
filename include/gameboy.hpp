@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "registers.hpp"
 #include "common.hpp"
 #include "opcode.hpp"
 
@@ -20,59 +21,6 @@
  *
  */
 
-#define ZERO_FLAG(flags)        (((flags) >> 7) & 1)
-#define SUB_FLAG(flags)         (((flags) >> 6) & 1) // used for BCD
-#define HALF_CARRY_FLAG(flags)  (((flags) >> 5) & 1) // used for BCD
-#define CARRY_FLAG(flags)       (((flags) >> 4) & 1)
-
-typedef union {
-    struct {
-        uint8_t unused:4;
-        uint8_t c:1;
-        uint8_t h:1;
-        uint8_t n:1;
-        uint8_t z:1;
-    };
-    uint8_t raw;
-} Flags_t;
-
-typedef struct registers_t {
-    union {
-        uint16_t raw = 0;
-        struct {
-            Flags_t f;
-            uint8_t a;
-        };
-    } af;
-
-    union {
-        uint16_t raw = 0;
-        struct {
-            uint8_t c;
-            uint8_t b;
-        };
-    } bc;
-
-    union {
-        uint16_t raw = 0;
-        struct {
-            uint8_t e;
-            uint8_t d;
-        };
-    } de;
-
-    union {
-        uint16_t raw = 0;
-        struct {
-            uint8_t l;
-            uint8_t h;
-        };
-    } hl;
-
-    uint16_t sp = 0;
-    uint16_t pc = 0x0100;
-} Registers_t;
-
 class GameBoy {
 public:
     GameBoy(std::string file_name);
@@ -81,7 +29,12 @@ public:
 
     void Disassemble();
 
-    const Flags_t get_flags() { return registers.af.f; }
+    void set_flag(bool condition, uint8_t bit) { 
+        if (condition) registers.f |= bit;
+        else registers.f &= ~bit;
+        registers.f &= 0xF0;
+    }
+    const uint8_t get_flag(uint8_t bit) { return (registers.f & bit) != 0; }
     const uint64_t get_cycles() { return tot_cycles; }
 private:
     void set_pc(uint16_t pc) { registers.pc = pc; }
