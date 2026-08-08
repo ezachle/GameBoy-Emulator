@@ -1,9 +1,8 @@
 #pragma once
 
-#include <memory>
-#include "cartridge.hpp"
-#include "registers.hpp"
 #include "common.hpp"
+#include "mmu.hpp"
+#include "registers.hpp"
 #include "opcode.hpp"
 
 /*
@@ -38,17 +37,12 @@ public:
     const uint8_t get_flag(uint8_t bit) { return (registers.f & bit) != 0; }
     const uint64_t get_cycles() { return tot_cycles; }
 private:
+    MMU mmu;
     void set_pc(uint16_t pc) { registers.pc = pc; }
     void add_to_cycle(uint8_t inc) { tot_cycles += inc; }
 
     void process_instructions(uint16_t pc, InstrInfo_t *instr);
     void process_prefix_instructions(uint8_t opcode);
-
-    void memory_write(uint16_t addr, uint8_t data);
-    uint8_t memory_read(uint16_t addr);
-
-    uint8_t get_byte(uint16_t addr);
-    uint16_t get_word(uint16_t addr);
 
     uint16_t pop();
     void push(uint16_t data);
@@ -60,7 +54,6 @@ private:
     Registers_t registers;
     uint64_t tot_cycles = 0;
 
-    Cartridge cart;
     bool jumping = false;
     bool enable_interrupt = false;
     bool is_halted = false;
